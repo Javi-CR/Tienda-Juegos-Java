@@ -1,1 +1,1 @@
-# Tienda-Juegos
+# Tienda de Juegos
