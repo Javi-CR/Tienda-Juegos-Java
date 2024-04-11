@@ -57,7 +57,7 @@ public class conexion {
         pstmt = conn.prepareStatement(query);
         pstmt.setInt(1, idJuego);
         rs = pstmt.executeQuery();
-        System.out.println("No se encontró la imagen para el juego con ID: " + rs);
+        //System.out.println("No se encontró la imagen para el juego con ID: " + idJuego);
         
         if (rs.next()) {
             rutaImagen = rs.getString("IMAGEN");

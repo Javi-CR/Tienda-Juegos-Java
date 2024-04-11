@@ -9,6 +9,11 @@ import java.awt.GridLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import java.awt.Image;
+import java.io.IOException;
+import java.net.URL;
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 
 /**
  *
@@ -24,18 +29,24 @@ public class Home extends javax.swing.JFrame {
         initComponents();
         conexion = new conexion();
         mostrarImagenJuego(1); // Llama al método para obtener la imagen del juego con ID 1
-    }
-
-    private void mostrarImagenJuego(int idJuego) {
+       
+}
+   private void mostrarImagenJuego(int idJuego) {
         String rutaImagen = conexion.obtenerRutaImagen(idJuego); // Obtener la ruta de la imagen para el juego con el ID especificado
         if (rutaImagen != null) {
-            ImageIcon imagen = new ImageIcon(rutaImagen);
-            JLabel label = new JLabel(imagen);
-            jPanel6.setLayout(new GridLayout(1, 1)); // Establecer layout del panel
-            jPanel6.add(label); // Agregar imagen al panel
+            try {
+                URL url = new URL(rutaImagen);
+                Image image = ImageIO.read(url);
+                ImageIcon imagen = new ImageIcon(image);
+                JLabel label = new JLabel(imagen);
+                jPanel6.setLayout(new GridLayout(1, 1)); // Establecer layout del panel
+                jPanel6.add(label); // Agregar imagen al panel
+            } catch (IOException e) {
+                System.out.println("Error al cargar la imagen: " + e.getMessage());
+            }
         } else {
             System.out.println("No se encontró la imagen para el juego con ID: " + idJuego);
-            System.out.println("No se encontró la imagen para el juego con ID: " + rutaImagen);
+            System.out.println("Ruta imagen: " + rutaImagen);
         }
     }
 
@@ -152,7 +163,7 @@ public class Home extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
-        // TODO add your handling code here:
+   
     }//GEN-LAST:event_jTextField2ActionPerformed
 
     /**
