@@ -10,6 +10,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.ResultSetMetaData;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -91,5 +93,20 @@ public class conexion {
         }
     }
     return rutaImagen;
-}
+}public List<String> obtenerRutasImagenesConDescuento() {
+        List<String> rutasImagenes = new ArrayList<>();
+        String query = "SELECT IMAGEN FROM JUEGO WHERE ENDESCUENTO = '1'";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(query);
+             ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                String rutaImagen = rs.getString("IMAGEN");
+                rutasImagenes.add(rutaImagen);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al obtener las rutas de las imágenes con descuento: " + e.getMessage());
+        }
+
+        return rutasImagenes;
+    }
 }

@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 import java.awt.Image;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
@@ -28,27 +29,77 @@ public class Home extends javax.swing.JFrame {
     public Home() {
         initComponents();
         conexion = new conexion();
-        mostrarImagenJuego(1); // Llama al método para obtener la imagen del juego con ID 1
+        mostrarImagenJuego(5); // Llama al método para obtener la imagen del juego con ID 1
+        mostrarImagenesDescuento();
        
 }
    private void mostrarImagenJuego(int idJuego) {
-        String rutaImagen = conexion.obtenerRutaImagen(idJuego); // Obtener la ruta de la imagen para el juego con el ID especificado
-        if (rutaImagen != null) {
-            try {
-                URL url = new URL(rutaImagen);
-                Image image = ImageIO.read(url);
-                ImageIcon imagen = new ImageIcon(image);
-                JLabel label = new JLabel(imagen);
-                jPanel6.setLayout(new GridLayout(1, 1)); // Establecer layout del panel
-                jPanel6.add(label); // Agregar imagen al panel
-            } catch (IOException e) {
-                System.out.println("Error al cargar la imagen: " + e.getMessage());
-            }
-        } else {
-            System.out.println("No se encontró la imagen para el juego con ID: " + idJuego);
-            System.out.println("Ruta imagen: " + rutaImagen);
+    String rutaImagen = conexion.obtenerRutaImagen(idJuego); // Obtener la ruta de la imagen para el juego con el ID especificado
+    if (rutaImagen != null) {
+        try {
+            System.out.println("Ruta de la imagen: " + rutaImagen); // Mensaje de depuración
+            
+            // Descargar la imagen desde la URL
+            URL url = new URL(rutaImagen);
+            Image imagenOriginal = ImageIO.read(url);
+            
+            // Redimensionar la imagen a 40x50 manteniendo la relación de aspecto
+            Image imagenRedimensionada = imagenOriginal.getScaledInstance(900, 300, Image.SCALE_SMOOTH);
+            
+            // Crear un ImageIcon con la imagen redimensionada
+            ImageIcon icono = new ImageIcon(imagenRedimensionada);
+            
+            // Crear un JLabel con el ImageIcon y agregarlo al jPanel6
+            JLabel label = new JLabel(icono);
+            jPanel6.setLayout(new GridLayout(1, 1)); // Establecer layout del panel
+            jPanel6.add(label); // Agregar imagen al panel
+        } catch (IOException e) {
+            System.out.println("Error al cargar la imagen: " + e.getMessage());
+        }
+    } else {
+        System.out.println("No se encontró la imagen para el juego con ID: " + idJuego);
+        System.out.println("Ruta imagen: " + rutaImagen);
+    }
+}
+   
+  
+
+// Resto de la clase...
+
+private void mostrarImagenesDescuento() {
+    // Obtener las rutas de las imágenes de los juegos con descuento desde la base de datos
+    List<String> rutasImagenes = conexion.obtenerRutasImagenesConDescuento();
+    
+    // Iterar sobre cada ruta de imagen
+    for (String rutaImagen : rutasImagenes) {
+        try {
+            System.out.println("Ruta de la imagen: " + rutaImagen); // Mensaje de depuración
+            
+            // Descargar la imagen desde la URL
+            URL url = new URL(rutaImagen);
+            Image imagenOriginal = ImageIO.read(url);
+            
+            // Redimensionar la imagen a 40x50 manteniendo la relación de aspecto
+            Image imagenRedimensionada = imagenOriginal.getScaledInstance(170, 90, Image.SCALE_SMOOTH);
+            
+            // Crear un ImageIcon con la imagen redimensionada
+            ImageIcon icono = new ImageIcon(imagenRedimensionada);
+            
+            // Crear un JLabel con el ImageIcon y agregarlo al jPanel9
+            JLabel label = new JLabel(icono);
+            jPanel9.add(label);
+        } catch (IOException e) {
+            System.out.println("Error al cargar la imagen desde la URL: " + e.getMessage());
         }
     }
+    
+    // Actualizar la disposición del panel
+    jPanel9.revalidate();
+    jPanel9.repaint();
+}
+
+
+
 
 
     @SuppressWarnings("unchecked")
@@ -64,10 +115,6 @@ public class Home extends javax.swing.JFrame {
         jPanel3 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
         jPanel9 = new javax.swing.JPanel();
-        jPanel15 = new javax.swing.JPanel();
-        jPanel16 = new javax.swing.JPanel();
-        jPanel12 = new javax.swing.JPanel();
-        jPanel17 = new javax.swing.JPanel();
         Label2 = new javax.swing.JLabel();
         Label3 = new javax.swing.JLabel();
         Label4 = new javax.swing.JLabel();
@@ -110,17 +157,10 @@ public class Home extends javax.swing.JFrame {
         jPanel1.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 610, 210, 90));
 
         jPanel4.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel4.setLayout(new java.awt.GridLayout());
+        jPanel4.setLayout(new java.awt.GridLayout(1, 0));
 
         jPanel9.setBackground(new java.awt.Color(0, 0, 0));
         jPanel9.setLayout(new java.awt.GridLayout(1, 4, 10, 0));
-        jPanel9.add(jPanel15);
-        jPanel9.add(jPanel16);
-
-        jPanel12.setMaximumSize(new java.awt.Dimension(32767, 52767));
-        jPanel9.add(jPanel12);
-        jPanel9.add(jPanel17);
-
         jPanel4.add(jPanel9);
 
         jPanel1.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 370, 860, 100));
@@ -241,11 +281,7 @@ public class Home extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel11;
-    private javax.swing.JPanel jPanel12;
     private javax.swing.JPanel jPanel13;
-    private javax.swing.JPanel jPanel15;
-    private javax.swing.JPanel jPanel16;
-    private javax.swing.JPanel jPanel17;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
