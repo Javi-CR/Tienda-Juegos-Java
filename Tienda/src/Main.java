@@ -1,6 +1,7 @@
 
 import Conexion.conexion;
 import Vista.inicio1;
+import Vista.perfil;
 
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
@@ -23,6 +24,7 @@ public class Main {
         //.............................
         inicio1 ventana = new inicio1();
         ventana.setVisible(true);
+        
     }
     
 }
