@@ -6,14 +6,19 @@ package Vista;
 
 import Conexion.Sesion;
 import Conexion.conexion;
+
 import java.awt.GridLayout;
-import javax.swing.ImageIcon;
+
 import javax.swing.JLabel;
-import javax.swing.JPanel;
+
 import java.awt.Image;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 
@@ -37,7 +42,7 @@ public class Home extends javax.swing.JFrame {
         mostrarImagenesDescuento();
         int id = Sesion.usuarioId;
         jNombreU.setText(Integer.toString(id)); // Convierte el ID del usuario a una cadena
-
+        SinDescuento();
        
 }
    private void mostrarImagenJuego(int idJuego) {
@@ -58,6 +63,14 @@ public class Home extends javax.swing.JFrame {
             
             // Crear un JLabel con el ImageIcon y agregarlo al jPanel6
             JLabel label = new JLabel(icono);
+            label.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    // Aquí manejas el clic en la imagen
+                    // Obtienes el idJuego asociado a esta imagen y lo utilizas para agregarlo al usuario
+                    agregarJuegoAUsuario(idJuego);
+                }
+            });
             jPanel6.setLayout(new GridLayout(1, 1)); // Establecer layout del panel
             jPanel6.add(label); // Agregar imagen al panel
         } catch (IOException e) {
@@ -68,6 +81,14 @@ public class Home extends javax.swing.JFrame {
         System.out.println("Ruta imagen: " + rutaImagen);
     }
 }
+   private void agregarJuegoAUsuario(int idJuego) {
+    // Aquí debes obtener el ID de usuario del usuario conectado.
+    int idUsuario = Sesion.usuarioId;
+    
+    // Aquí debes agregar una nueva fila a la tabla usuario_juego con el idUsuario y el idJuego.
+    conexion.agregarJuegoAUsuario(idUsuario, idJuego);
+}
+
    
   
 
@@ -75,13 +96,13 @@ public class Home extends javax.swing.JFrame {
 
 private void mostrarImagenesDescuento() {
     // Obtener las rutas de las imágenes de los juegos con descuento desde la base de datos
-    List<String> rutasImagenes = conexion.obtenerRutasImagenesConDescuento();
+    Map<String, Integer> rutasEIds = conexion.obtenerRutasEIdsImagenesConDescuento();
     
-    // Iterar sobre cada ruta de imagen
-    for (String rutaImagen : rutasImagenes) {
+    // Iterar sobre cada par de ruta de imagen e ID de juego
+    for (Map.Entry<String, Integer> entry : rutasEIds.entrySet()) {
+        String rutaImagen = entry.getKey();
+        int idJuego = entry.getValue();
         try {
-            System.out.println("Ruta de la imagen: " + rutaImagen); // Mensaje de depuración
-            
             // Descargar la imagen desde la URL
             URL url = new URL(rutaImagen);
             Image imagenOriginal = ImageIO.read(url);
@@ -94,6 +115,15 @@ private void mostrarImagenesDescuento() {
             
             // Crear un JLabel con el ImageIcon y agregarlo al jPanel9
             JLabel label = new JLabel(icono);
+            label.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    // Manejar el clic en la imagen, pasando el ID del juego asociado
+                    agregarJuegoAUsuario(idJuego);
+                }
+            });
+            
+            // Agregar el JLabel al jPanel9
             jPanel9.add(label);
         } catch (IOException e) {
             System.out.println("Error al cargar la imagen desde la URL: " + e.getMessage());
@@ -106,6 +136,54 @@ private void mostrarImagenesDescuento() {
 }
 
 
+private void SinDescuento() {
+    // Obtener las rutas de las imágenes de los juegos sin descuento desde la base de datos
+    List<String> rutasImagenes = conexion.obtenerRutasImagenesSinDescuento();
+    Map<String, Integer> rutasEIds = conexion.obtenerRutasEIdsImagenesSinDescuento();
+    
+    // Iterar sobre cada par de ruta de imagen e ID de juego
+    for (Map.Entry<String, Integer> entry : rutasEIds.entrySet()) {
+        String rutaImagen = entry.getKey();
+        int idJuego = entry.getValue();
+        try {
+            System.out.println("Ruta de la imagen: " + rutaImagen); // Mensaje de depuración
+            
+            // Descargar la imagen desde la URL
+            URL url = new URL(rutaImagen);
+            Image imagenOriginal = ImageIO.read(url);
+            
+            // Redimensionar la imagen a 170x90 manteniendo la relación de aspecto
+            Image imagenRedimensionada = imagenOriginal.getScaledInstance(170, 90, Image.SCALE_SMOOTH);
+            
+            // Crear un ImageIcon con la imagen redimensionada
+            ImageIcon icono = new ImageIcon(imagenRedimensionada);
+            
+            // Crear un JLabel con el ImageIcon y agregarlo al jPanel8
+            JLabel label = new JLabel(icono);
+            label.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    // Manejar el clic en la imagen, pasando el ID del juego asociado
+                    agregarJuegoAUsuario(idJuego);
+                }
+            });
+            
+            // Agregar el JLabel al jPanel8
+            jPanel8.add(label);
+        } catch (IOException e) {
+            System.out.println("Error al cargar la imagen desde la URL: " + e.getMessage());
+        }
+    }
+    
+    // Actualizar la disposición del panel
+    jPanel8.revalidate();
+    jPanel8.repaint();
+}
+
+
+
+
+
 
 
 
@@ -115,15 +193,10 @@ private void mostrarImagenesDescuento() {
 
         jPanel5 = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
-        jPanel2 = new javax.swing.JPanel();
-        jPanel3 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
         jPanel9 = new javax.swing.JPanel();
         jPanel6 = new javax.swing.JPanel();
-        jPanel7 = new javax.swing.JPanel();
         jPanel8 = new javax.swing.JPanel();
-        jPanel11 = new javax.swing.JPanel();
-        jPanel13 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
         panelRound1 = new Clases.PanelRound();
@@ -140,8 +213,6 @@ private void mostrarImagenesDescuento() {
         jPanel1.setBackground(new java.awt.Color(0, 0, 0));
         jPanel1.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        jPanel1.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 510, 210, 190));
-        jPanel1.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 610, 210, 90));
 
         jPanel4.setBackground(new java.awt.Color(255, 255, 255));
         jPanel4.setLayout(new java.awt.GridLayout(1, 0));
@@ -150,19 +221,21 @@ private void mostrarImagenesDescuento() {
         jPanel9.setLayout(new java.awt.GridLayout(1, 4, 10, 0));
         jPanel4.add(jPanel9);
 
-        jPanel1.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 370, 860, 100));
+        jPanel1.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 370, 1280, 100));
         jPanel4.getAccessibleContext().setAccessibleName("");
 
-        jPanel1.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 90, 860, 220));
-        jPanel1.add(jPanel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 610, 210, 90));
-        jPanel1.add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 510, 210, 90));
-        jPanel1.add(jPanel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 510, 210, 190));
-        jPanel1.add(jPanel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 510, 210, 90));
+        jPanel1.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 90, 1280, 240));
 
+        jPanel8.setBackground(new java.awt.Color(0, 0, 0));
+        jPanel8.setForeground(new java.awt.Color(0, 0, 0));
+        jPanel1.add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 500, 1310, 280));
+
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("OFERTAS ESPECIALES");
         jLabel1.setBorder(new javax.swing.border.MatteBorder(null));
-        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 340, 120, -1));
-        jPanel1.add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 480, 870, 20));
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 340, 210, -1));
+        jPanel1.add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 490, 1320, 20));
 
         panelRound1.setBackground(new java.awt.Color(0, 102, 102));
         panelRound1.setRoundBottomLeft(20);
@@ -343,14 +416,9 @@ private void mostrarImagenesDescuento() {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jNombreU;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel11;
-    private javax.swing.JPanel jPanel13;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
-    private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanel9;
     private javax.swing.JSeparator jSeparator1;

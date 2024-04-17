@@ -95,7 +95,14 @@ public class Usuarios {
             }
         }
     }
-
-
+    
+     public int obtenerIdUsuarioConectado() {
+        
+        return Sesion.usuarioId;
+}
 
 }
+
+
+
+

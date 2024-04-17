@@ -1,13 +1,8 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
+
 package Vista;
 
-/**
- *
- * @author javie
- */
+import Conexion.Usuarios;
+
 public class perfil extends javax.swing.JFrame {
 
     /**
@@ -18,7 +13,10 @@ public class perfil extends javax.swing.JFrame {
         setTitle("Perfil");
         setResizable(false);
         setLocationRelativeTo(null);
+        
+    
     }
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -49,7 +47,7 @@ public class perfil extends javax.swing.JFrame {
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
         myButton4 = new Vista.MyButton();
-        jLabel3 = new javax.swing.JLabel();
+        jLabelNombreUsuario = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -220,11 +218,11 @@ public class perfil extends javax.swing.JFrame {
 
         jPanel1.add(panelRound2, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 260, 1080, 480));
 
-        jLabel3.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel3.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel3.setText("Javi3504");
-        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 130, 260, 50));
+        jLabelNombreUsuario.setBackground(new java.awt.Color(255, 255, 255));
+        jLabelNombreUsuario.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        jLabelNombreUsuario.setForeground(new java.awt.Color(255, 255, 255));
+        jLabelNombreUsuario.setText("Javi3504");
+        jPanel1.add(jLabelNombreUsuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 130, 260, 50));
 
         jLabel5.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(255, 255, 255));
@@ -308,13 +306,13 @@ public class perfil extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JLabel jLabelNombreUsuario;
     private javax.swing.JPanel jPanel1;
     private Vista.MyButton myButton1;
     private Vista.MyButton myButton3;
