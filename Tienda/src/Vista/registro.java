@@ -4,6 +4,9 @@
  */
 package Vista;
 
+import Conexion.Usuarios;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author javie
@@ -31,12 +34,13 @@ public class registro extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        jTextField6 = new javax.swing.JTextField();
-        jTextField5 = new javax.swing.JTextField();
-        jTextField4 = new javax.swing.JTextField();
-        jTextField3 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
-        jTextField1 = new javax.swing.JTextField();
+        myButton1 = new Vista.MyButton();
+        jUser = new javax.swing.JTextField();
+        jEdad = new javax.swing.JTextField();
+        jPass = new javax.swing.JTextField();
+        jCorreo = new javax.swing.JTextField();
+        jNombre = new javax.swing.JTextField();
+        jApellido = new javax.swing.JTextField();
         Label1 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
@@ -60,59 +64,72 @@ public class registro extends javax.swing.JFrame {
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jTextField6.setBackground(new java.awt.Color(230, 230, 230));
-        jTextField6.setBorder(null);
-        jTextField6.addActionListener(new java.awt.event.ActionListener() {
+        myButton1.setText("Regresar");
+        myButton1.setBorderColor(new java.awt.Color(0, 153, 153));
+        myButton1.setColor(new java.awt.Color(0, 153, 153));
+        myButton1.setColorClick(new java.awt.Color(0, 153, 153));
+        myButton1.setColorOver(new java.awt.Color(255, 255, 255));
+        myButton1.setRadius(10);
+        myButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField6ActionPerformed(evt);
+                myButton1ActionPerformed(evt);
             }
         });
-        jPanel1.add(jTextField6, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 560, 180, 20));
+        jPanel1.add(myButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 120, 40));
 
-        jTextField5.setBackground(new java.awt.Color(230, 230, 230));
-        jTextField5.setBorder(null);
-        jTextField5.addActionListener(new java.awt.event.ActionListener() {
+        jUser.setBackground(new java.awt.Color(230, 230, 230));
+        jUser.setBorder(null);
+        jUser.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField5ActionPerformed(evt);
+                jUserActionPerformed(evt);
             }
         });
-        jPanel1.add(jTextField5, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 460, 180, 20));
+        jPanel1.add(jUser, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 560, 180, 20));
 
-        jTextField4.setBackground(new java.awt.Color(230, 230, 230));
-        jTextField4.setBorder(null);
-        jTextField4.addActionListener(new java.awt.event.ActionListener() {
+        jEdad.setBackground(new java.awt.Color(230, 230, 230));
+        jEdad.setBorder(null);
+        jEdad.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField4ActionPerformed(evt);
+                jEdadActionPerformed(evt);
             }
         });
-        jPanel1.add(jTextField4, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 460, 180, 20));
+        jPanel1.add(jEdad, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 460, 180, 20));
 
-        jTextField3.setBackground(new java.awt.Color(230, 230, 230));
-        jTextField3.setBorder(null);
-        jTextField3.addActionListener(new java.awt.event.ActionListener() {
+        jPass.setBackground(new java.awt.Color(230, 230, 230));
+        jPass.setBorder(null);
+        jPass.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField3ActionPerformed(evt);
+                jPassActionPerformed(evt);
             }
         });
-        jPanel1.add(jTextField3, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 360, 380, 20));
+        jPanel1.add(jPass, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 460, 180, 20));
 
-        jTextField2.setBackground(new java.awt.Color(230, 230, 230));
-        jTextField2.setBorder(null);
-        jTextField2.addActionListener(new java.awt.event.ActionListener() {
+        jCorreo.setBackground(new java.awt.Color(230, 230, 230));
+        jCorreo.setBorder(null);
+        jCorreo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField2ActionPerformed(evt);
+                jCorreoActionPerformed(evt);
             }
         });
-        jPanel1.add(jTextField2, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 260, 180, 20));
+        jPanel1.add(jCorreo, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 360, 380, 20));
 
-        jTextField1.setBackground(new java.awt.Color(230, 230, 230));
-        jTextField1.setBorder(null);
-        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+        jNombre.setBackground(new java.awt.Color(230, 230, 230));
+        jNombre.setBorder(null);
+        jNombre.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField1ActionPerformed(evt);
+                jNombreActionPerformed(evt);
             }
         });
-        jPanel1.add(jTextField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 260, 180, 20));
+        jPanel1.add(jNombre, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 260, 180, 20));
+
+        jApellido.setBackground(new java.awt.Color(230, 230, 230));
+        jApellido.setBorder(null);
+        jApellido.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jApellidoActionPerformed(evt);
+            }
+        });
+        jPanel1.add(jApellido, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 260, 180, 20));
 
         Label1.setFont(new java.awt.Font("URW Geometric Light", 0, 36)); // NOI18N
         Label1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -189,31 +206,81 @@ public class registro extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
+        String ObtNombre   = jNombre.getText();
+        String ObtApellido = jApellido.getText();
+        String ObtCorreo   = jCorreo.getText();
+        String ObtPass     = jPass.getText();
+        String ObtEdad     = jEdad.getText();
+        String ObtUser     = jUser.getText();
+        
+        // Primero, verifica si alguno de los campos está vacío
+        if (ObtNombre.isEmpty() || ObtApellido.isEmpty() || ObtCorreo.isEmpty() || ObtPass.isEmpty() || ObtEdad.isEmpty() || ObtUser.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Ninguno de los campos puede estar vacío");
+        } else if (!ObtNombre.matches("[a-zA-Z ]+") || !ObtApellido.matches("[a-zA-Z ]+")) {
+            // Luego, valida el nombre y el apellido
+            JOptionPane.showMessageDialog(null, "El nombre y el apellido solo pueden contener letras y espacios");
+        } else if (!ObtCorreo.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            // A continuación, valida el correo
+            JOptionPane.showMessageDialog(null, "Por favor, introduce un correo válido");
+        } else {
+            try {
+                int edad = Integer.parseInt(ObtEdad);
+                if (edad < 1 || edad > 100) {
+                    // Luego, valida la edad
+                    JOptionPane.showMessageDialog(null, "La edad debe ser un número entre 1 y 100");
+                } else {
+                    // Si todas las validaciones son exitosas, puedes continuar con el registro del usuario
+                    Usuarios usuario = new Usuarios();
+                    usuario.insertarUsuario(ObtNombre, ObtApellido, ObtCorreo, ObtPass, edad, ObtUser);
+                    //Inicia Sesion Automatico....
+                    boolean esValido = usuario.validarUsuario(ObtCorreo, ObtPass);
+                    //....
+                    if (esValido) {
+                        JOptionPane.showMessageDialog(null, "Bienvenido!!");
+                        dispose();
+                        new Home().setVisible(true);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Correo o contraseña incorrectos");
+                    }
+                }
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "La edad debe ser un número");
+            }
+        }
+        
+        
+        
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+    private void jApellidoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jApellidoActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField1ActionPerformed
+    }//GEN-LAST:event_jApellidoActionPerformed
 
-    private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
+    private void jNombreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jNombreActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField2ActionPerformed
+    }//GEN-LAST:event_jNombreActionPerformed
 
-    private void jTextField3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField3ActionPerformed
+    private void jCorreoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCorreoActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField3ActionPerformed
+    }//GEN-LAST:event_jCorreoActionPerformed
 
-    private void jTextField4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField4ActionPerformed
+    private void jPassActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jPassActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField4ActionPerformed
+    }//GEN-LAST:event_jPassActionPerformed
 
-    private void jTextField5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField5ActionPerformed
+    private void jEdadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jEdadActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField5ActionPerformed
+    }//GEN-LAST:event_jEdadActionPerformed
 
-    private void jTextField6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField6ActionPerformed
+    private void jUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jUserActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField6ActionPerformed
+    }//GEN-LAST:event_jUserActionPerformed
+
+    private void myButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton1ActionPerformed
+        // TODO add your handling code here:
+        dispose();
+        new inicio1().setVisible(true);
+    }//GEN-LAST:event_myButton1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -255,7 +322,10 @@ public class registro extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel Label1;
+    private javax.swing.JTextField jApellido;
     private javax.swing.JButton jButton1;
+    private javax.swing.JTextField jCorreo;
+    private javax.swing.JTextField jEdad;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -269,13 +339,11 @@ public class registro extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JTextField jNombre;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField5;
-    private javax.swing.JTextField jTextField6;
+    private javax.swing.JTextField jPass;
+    private javax.swing.JTextField jUser;
+    private Vista.MyButton myButton1;
     // End of variables declaration//GEN-END:variables
 }

@@ -130,3 +130,49 @@ VALUES (6, 'The Witcher 3: Wild Hunt', TO_DATE('2015-05-19', 'YYYY-MM-DD'), 39.9
 
 
 /
+
+
+--Modificaciones a la base de datos
+
+ALTER TABLE juego
+ADD IMAGEN VARCHAR2(255);
+
+ALTER TABLE usuario
+ADD correo VARCHAR2(35);
+
+ALTER TABLE usuario
+ADD contraseña VARCHAR2(50);
+
+ALTER TABLE usuario
+ADD IMAGEN VARCHAR2(255);
+
+
+ALTER TABLE usuario
+ADD Nombre VARCHAR2(50);
+
+ALTER TABLE usuario
+ADD Apellido VARCHAR2(50);
+
+
+-- Eliminar la columna NOMBRECOMPLETO
+ALTER TABLE usuario
+DROP COLUMN NOMBRECOMPLETO;
+
+
+-- Crear la secuencia (Incrementa el ID del Usuario)
+CREATE SEQUENCE seq_usuario
+START WITH 1
+INCREMENT BY 1;
+
+-- Crear el trigger
+CREATE OR REPLACE TRIGGER trg_usuario
+BEFORE INSERT ON usuario
+FOR EACH ROW
+BEGIN
+  SELECT seq_usuario.nextval
+  INTO :new.IDUSUARIO
+  FROM dual;
+END;
+/
+
+SELECT * FROM USUARIO;

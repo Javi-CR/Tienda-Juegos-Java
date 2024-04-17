@@ -4,6 +4,9 @@
  */
 package Vista;
 
+import Conexion.Usuarios;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author javie
@@ -31,15 +34,15 @@ public class login extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        Text1 = new javax.swing.JTextField();
-        Text2 = new javax.swing.JPasswordField();
+        myButton1 = new Vista.MyButton();
+        jCorreo = new javax.swing.JTextField();
+        jPass = new javax.swing.JPasswordField();
         F2 = new javax.swing.JLabel();
         F1 = new javax.swing.JLabel();
         Label1 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        jButton2 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
 
@@ -49,13 +52,36 @@ public class login extends javax.swing.JFrame {
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        Text1.setBackground(new java.awt.Color(230, 230, 230));
-        Text1.setBorder(null);
-        jPanel1.add(Text1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 310, 380, 20));
+        myButton1.setText("Regresar");
+        myButton1.setBorderColor(new java.awt.Color(0, 153, 153));
+        myButton1.setColor(new java.awt.Color(0, 153, 153));
+        myButton1.setColorClick(new java.awt.Color(0, 153, 153));
+        myButton1.setColorOver(new java.awt.Color(255, 255, 255));
+        myButton1.setRadius(10);
+        myButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                myButton1ActionPerformed(evt);
+            }
+        });
+        jPanel1.add(myButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 120, 40));
 
-        Text2.setBackground(new java.awt.Color(230, 230, 230));
-        Text2.setBorder(null);
-        jPanel1.add(Text2, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 410, 380, 20));
+        jCorreo.setBackground(new java.awt.Color(230, 230, 230));
+        jCorreo.setBorder(null);
+        jCorreo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCorreoActionPerformed(evt);
+            }
+        });
+        jPanel1.add(jCorreo, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 310, 380, 20));
+
+        jPass.setBackground(new java.awt.Color(230, 230, 230));
+        jPass.setBorder(null);
+        jPass.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jPassActionPerformed(evt);
+            }
+        });
+        jPanel1.add(jPass, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 410, 380, 20));
 
         F2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/F1.png"))); // NOI18N
         jPanel1.add(F2, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 400, 400, 40));
@@ -90,14 +116,6 @@ public class login extends javax.swing.JFrame {
         jLabel2.setText("Contraseña");
         jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 380, 500, -1));
 
-        jButton2.setText("Home");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
-            }
-        });
-        jPanel1.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 740, -1, -1));
-
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 500, 800));
 
         jPanel2.setBackground(new java.awt.Color(255, 153, 204));
@@ -112,14 +130,43 @@ public class login extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-       Home h = new Home();
-        h.setVisible(true);
-        this.setVisible(false);
+        
+        String Correo = jCorreo.getText();
+        String Pass   = jPass.getText();
+        
+        // Verificar si Correo o Pass están vacíos
+        if (Correo.isEmpty() || Pass.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "El correo y la contraseña no pueden estar vacíos");
+        } else {
+            // Verificar en la base de datos
+            Usuarios usuario = new Usuarios();
+            boolean esValido = usuario.validarUsuario(Correo, Pass);
+
+            if (esValido) {
+                JOptionPane.showMessageDialog(null, "Inicio de sesión exitoso");
+                dispose();
+                new Home().setVisible(true);
+                
+            } else {
+                JOptionPane.showMessageDialog(null, "Correo o contraseña incorrectos");
+            }
+        }
+
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        
-    }//GEN-LAST:event_jButton2ActionPerformed
+    private void jCorreoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCorreoActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jCorreoActionPerformed
+
+    private void jPassActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jPassActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jPassActionPerformed
+
+    private void myButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton1ActionPerformed
+        // TODO add your handling code here:
+        dispose();
+        new inicio1().setVisible(true);
+    }//GEN-LAST:event_myButton1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -161,14 +208,14 @@ public class login extends javax.swing.JFrame {
     private javax.swing.JLabel F1;
     private javax.swing.JLabel F2;
     private javax.swing.JLabel Label1;
-    private javax.swing.JTextField Text1;
-    private javax.swing.JPasswordField Text2;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
+    private javax.swing.JTextField jCorreo;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPasswordField jPass;
+    private Vista.MyButton myButton1;
     // End of variables declaration//GEN-END:variables
 }

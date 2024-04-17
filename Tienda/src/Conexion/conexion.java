@@ -50,6 +50,7 @@ public class conexion {
             System.out.println(e);
         }
     }
+    
    public String obtenerRutaImagen(int idJuego) {
     String rutaImagen = null;
     PreparedStatement pstmt = null;
@@ -108,5 +109,9 @@ public class conexion {
         }
 
         return rutasImagenes;
+    }
+
+    public Connection getConexion() {
+        return this.conn;
     }
 }

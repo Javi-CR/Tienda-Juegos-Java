@@ -4,6 +4,7 @@
  */
 package Vista;
 
+import Conexion.Sesion;
 import Conexion.conexion;
 import java.awt.GridLayout;
 import javax.swing.ImageIcon;
@@ -34,6 +35,9 @@ public class Home extends javax.swing.JFrame {
         setLocationRelativeTo(null);
         mostrarImagenJuego(5); // Llama al método para obtener la imagen del juego con ID 1
         mostrarImagenesDescuento();
+        int id = Sesion.usuarioId;
+        jNombreU.setText(Integer.toString(id)); // Convierte el ID del usuario a una cadena
+
        
 }
    private void mostrarImagenJuego(int idJuego) {
@@ -124,7 +128,7 @@ private void mostrarImagenesDescuento() {
         jSeparator1 = new javax.swing.JSeparator();
         panelRound1 = new Clases.PanelRound();
         myButton1 = new Vista.MyButton();
-        jLabel4 = new javax.swing.JLabel();
+        jNombreU = new javax.swing.JLabel();
         myButton5 = new Vista.MyButton();
         myButton6 = new Vista.MyButton();
         myButton7 = new Vista.MyButton();
@@ -172,9 +176,9 @@ private void mostrarImagenesDescuento() {
         myButton1.setRadius(40);
         panelRound1.add(myButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1160, 10, 40, 40));
 
-        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel4.setText("Usuario...");
-        panelRound1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(1220, 10, 100, 40));
+        jNombreU.setForeground(new java.awt.Color(255, 255, 255));
+        jNombreU.setText("Usuario...");
+        panelRound1.add(jNombreU, new org.netbeans.lib.awtextra.AbsoluteConstraints(1220, 10, 100, 40));
 
         myButton5.setForeground(new java.awt.Color(255, 255, 255));
         myButton5.setText("Biblioteca");
@@ -337,7 +341,7 @@ private void mostrarImagenesDescuento() {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jNombreU;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel11;
     private javax.swing.JPanel jPanel13;
