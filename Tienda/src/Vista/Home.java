@@ -5,6 +5,7 @@
 package Vista;
 
 import Conexion.Sesion;
+import Conexion.Usuarios;
 import Conexion.conexion;
 
 import java.awt.GridLayout;
@@ -40,12 +41,33 @@ public class Home extends javax.swing.JFrame {
         setLocationRelativeTo(null);
         mostrarImagenJuego(5); // Llama al método para obtener la imagen del juego con ID 1
         mostrarImagenesDescuento();
+        
         int id = Sesion.usuarioId;
-        jNombreU.setText(Integer.toString(id)); // Convierte el ID del usuario a una cadena
+        Usuarios usuarios = new Usuarios(); // Crea una instancia de la clase Usuarios
+        String nombreUsuario = usuarios.obtenerNombreUsuario(id); // Llama al método obtenerNombreUsuario(id)
+        jNombreU.setText(nombreUsuario);
+        
         SinDescuento();
-       
-}
-   private void mostrarImagenJuego(int idJuego) {
+        
+        String rutaImagen = usuarios.obtenerRutaImagen(id); // Llama al método obtenerRutaImagen(id)
+        if (rutaImagen != null) {
+            ImageIcon icon = usuarios.createRoundImage(rutaImagen); // Llama al método createRoundImage(rutaImagen)
+            if (icon != null) {
+                Image img1 = icon.getImage();
+                Image newimg1 = img1.getScaledInstance(38, 38, java.awt.Image.SCALE_SMOOTH); // Ajusta el tamaño de la imagen para myButton1
+                ImageIcon icon1 = new ImageIcon(newimg1);
+                myButton1.setIcon(icon1);
+            } else {
+                System.out.println("No hay imagen disponible");
+            }
+        } else {
+            System.out.println("No hay imagen disponible");
+           
+        }
+
+    }
+
+    private void mostrarImagenJuego(int idJuego) {
     String rutaImagen = conexion.obtenerRutaImagen(idJuego); // Obtener la ruta de la imagen para el juego con el ID especificado
     if (rutaImagen != null) {
         try {

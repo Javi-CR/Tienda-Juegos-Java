@@ -1,7 +1,17 @@
 
 package Vista;
 
+import Conexion.Sesion;
 import Conexion.Usuarios;
+import java.awt.Image;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class perfil extends javax.swing.JFrame {
 
@@ -14,9 +24,47 @@ public class perfil extends javax.swing.JFrame {
         setResizable(false);
         setLocationRelativeTo(null);
         
-    
+        int id = Sesion.usuarioId;
+        Usuarios usuarios = new Usuarios(); // Crea una instancia de la clase Usuarios
+        String nombreU = usuarios.obtenerNombreUsuario(id); // Llama al método obtenerNombreUsuario(id)
+        jNombreU.setText(nombreU);
+        
+        String nombreUser = usuarios.obtenerUsuario(id);
+        jUsername.setText(nombreUser);
+        jID.setText(String.valueOf(id));
+        
+        String Apellido = usuarios.obtenerApellido(id);
+        String nombreCompleto = nombreU + " " + Apellido;
+        jNombreC.setText(nombreCompleto);
+
+        String Edad = usuarios.obtenerEdad(id);
+        jEdad.setText(Edad);
+
+        String rutaImagen = usuarios.obtenerRutaImagen(id); // Llama al método obtenerRutaImagen(id)
+        if (rutaImagen != null) {
+            ImageIcon icon = usuarios.createRoundImage(rutaImagen); // Llama al método createRoundImage(rutaImagen)
+            if (icon != null) {
+                Image img1 = icon.getImage();
+                Image newimg1 = img1.getScaledInstance(38, 38, java.awt.Image.SCALE_SMOOTH); // Ajusta el tamaño de la imagen para myButton1
+                ImageIcon icon1 = new ImageIcon(newimg1);
+                myButton1.setIcon(icon1);
+
+                Image img = icon.getImage();
+                Image newimg = img.getScaledInstance(118, 118, java.awt.Image.SCALE_SMOOTH); // Ajusta el tamaño de la imagen
+                icon = new ImageIcon(newimg);
+                myButton3.setIcon(icon);
+                
+            } else {
+                System.out.println("No hay imagen disponible");
+                myButton3.setText("Cargar imagen");
+            }
+        } else {
+            System.out.println("No hay imagen disponible");
+           
+        }
+
     }
-    
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -29,10 +77,10 @@ public class perfil extends javax.swing.JFrame {
 
         jPanel1 = new javax.swing.JPanel();
         myButton3 = new Vista.MyButton();
-        jLabel2 = new javax.swing.JLabel();
+        jID = new javax.swing.JLabel();
         panelRound1 = new Clases.PanelRound();
         myButton1 = new Vista.MyButton();
-        jLabel4 = new javax.swing.JLabel();
+        jNombreU = new javax.swing.JLabel();
         myButton5 = new Vista.MyButton();
         myButton6 = new Vista.MyButton();
         myButton7 = new Vista.MyButton();
@@ -45,29 +93,38 @@ public class perfil extends javax.swing.JFrame {
         jLabel9 = new javax.swing.JLabel();
         panelRound3 = new Clases.PanelRound();
         jLabel10 = new javax.swing.JLabel();
-        jLabel11 = new javax.swing.JLabel();
         myButton4 = new Vista.MyButton();
-        jLabelNombreUsuario = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
+        jNombreC = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
+        jEdad = new javax.swing.JLabel();
+        jUsername = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jPanel1.setBackground(new java.awt.Color(51, 51, 51));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        myButton3.setText("iconoPerfil");
         myButton3.setBorderColor(new java.awt.Color(255, 255, 255));
         myButton3.setBorderPainted(false);
         myButton3.setColorClick(new java.awt.Color(255, 255, 255));
         myButton3.setColorOver(new java.awt.Color(255, 255, 255));
+        myButton3.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         myButton3.setRadius(120);
+        myButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                myButton3ActionPerformed(evt);
+            }
+        });
         jPanel1.add(myButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 120, 120, 120));
 
-        jLabel2.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel2.setFont(new java.awt.Font("Segoe UI Semilight", 0, 14)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel2.setText("ID#123");
-        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 180, 260, 20));
+        jID.setBackground(new java.awt.Color(255, 255, 255));
+        jID.setFont(new java.awt.Font("Segoe UI Semilight", 0, 14)); // NOI18N
+        jID.setForeground(new java.awt.Color(255, 255, 255));
+        jID.setText("??");
+        jPanel1.add(jID, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 180, 260, 20));
 
         panelRound1.setBackground(new java.awt.Color(0, 102, 102));
         panelRound1.setRoundBottomLeft(20);
@@ -78,12 +135,18 @@ public class perfil extends javax.swing.JFrame {
         myButton1.setBorderPainted(false);
         myButton1.setColorClick(new java.awt.Color(255, 255, 255));
         myButton1.setColorOver(new java.awt.Color(255, 255, 255));
+        myButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         myButton1.setRadius(40);
+        myButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                myButton1ActionPerformed(evt);
+            }
+        });
         panelRound1.add(myButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1160, 10, 40, 40));
 
-        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel4.setText("Usuario...");
-        panelRound1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(1220, 10, 100, 40));
+        jNombreU.setForeground(new java.awt.Color(255, 255, 255));
+        jNombreU.setText("Usuario...");
+        panelRound1.add(jNombreU, new org.netbeans.lib.awtextra.AbsoluteConstraints(1220, 10, 100, 40));
 
         myButton5.setForeground(new java.awt.Color(255, 255, 255));
         myButton5.setText("Biblioteca");
@@ -171,8 +234,8 @@ public class perfil extends javax.swing.JFrame {
 
         jLabel7.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel7.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel7.setText("Edad: 20 años");
-        panelRound2.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 410, -1, -1));
+        jLabel7.setText("años");
+        panelRound2.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 410, -1, -1));
 
         jLabel8.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel8.setForeground(new java.awt.Color(255, 255, 255));
@@ -195,11 +258,6 @@ public class perfil extends javax.swing.JFrame {
         jLabel10.setText("Jugando: (Juego)");
         panelRound2.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 120, -1, -1));
 
-        jLabel11.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel11.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel11.setText("Nombre Completo: Javier Romero G.");
-        panelRound2.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 380, -1, -1));
-
         myButton4.setForeground(new java.awt.Color(255, 255, 255));
         myButton4.setText("Cerrar Sesión");
         myButton4.setBorderColor(new java.awt.Color(255, 255, 255));
@@ -216,18 +274,44 @@ public class perfil extends javax.swing.JFrame {
         });
         panelRound2.add(myButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(910, 380, 140, 50));
 
+        jLabel12.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel12.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel12.setText("Nombre Completo:");
+        panelRound2.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 380, -1, -1));
+
+        jNombreC.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jNombreC.setForeground(new java.awt.Color(255, 255, 255));
+        jNombreC.setText("???");
+        panelRound2.add(jNombreC, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 380, 90, -1));
+
+        jLabel11.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jLabel11.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel11.setText("Edad:");
+        panelRound2.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 410, -1, -1));
+
+        jEdad.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        jEdad.setForeground(new java.awt.Color(255, 255, 255));
+        jEdad.setText("???");
+        panelRound2.add(jEdad, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 410, 30, -1));
+
         jPanel1.add(panelRound2, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 260, 1080, 480));
 
-        jLabelNombreUsuario.setBackground(new java.awt.Color(255, 255, 255));
-        jLabelNombreUsuario.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
-        jLabelNombreUsuario.setForeground(new java.awt.Color(255, 255, 255));
-        jLabelNombreUsuario.setText("Javi3504");
-        jPanel1.add(jLabelNombreUsuario, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 130, 260, 50));
+        jUsername.setBackground(new java.awt.Color(255, 255, 255));
+        jUsername.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
+        jUsername.setForeground(new java.awt.Color(255, 255, 255));
+        jUsername.setText("????");
+        jPanel1.add(jUsername, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 130, 260, 50));
 
         jLabel5.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(255, 255, 255));
         jLabel5.setText("Jugando: (Juego)");
         jPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
+
+        jLabel3.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel3.setFont(new java.awt.Font("Segoe UI Semilight", 0, 14)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel3.setText("ID#");
+        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 180, -1, 20));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -264,6 +348,48 @@ public class perfil extends javax.swing.JFrame {
         dispose();
         new Home().setVisible(true);
     }//GEN-LAST:event_myButton8ActionPerformed
+
+    private void myButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton3ActionPerformed
+        // TODO add your handling code here:
+        JFileChooser fileChooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Images", "jpg", "png", "gif", "bmp");
+        fileChooser.setFileFilter(filter);
+        int returnValue = fileChooser.showOpenDialog(null);
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            try {
+                // Copia la imagen al directorio 'img'
+                String destinationPath = "./src/img/" + selectedFile.getName();
+                Files.copy(selectedFile.toPath(), Paths.get(destinationPath), StandardCopyOption.REPLACE_EXISTING);
+
+                // Guarda el nombre de la imagen en la base de datos SQL
+                myButton3.setText("");
+                Usuarios usuarios = new Usuarios();
+                usuarios.guardarNombreImagen(Sesion.usuarioId, selectedFile.getName());
+            } catch (IOException e) {
+                System.out.println("Error al copiar la imagen: " + e.getMessage());
+            }
+        }
+        
+        //Obtener Imagen
+        Usuarios usuarios = new Usuarios();
+        String rutaImagen = usuarios.obtenerRutaImagen(Sesion.usuarioId); // Llama al método obtenerRutaImagen(id)
+        if (rutaImagen != null) {
+            ImageIcon icon = usuarios.createRoundImage(rutaImagen); // Llama al método createRoundImage(rutaImagen)
+            Image img = icon.getImage();
+            Image newimg = img.getScaledInstance(110, 110, java.awt.Image.SCALE_SMOOTH); // Ajusta el tamaño de la imagen
+            icon = new ImageIcon(newimg);
+            myButton3.setIcon(icon);
+        } else {
+            System.out.println("Imagen no encontrada");
+        }
+
+
+    }//GEN-LAST:event_myButton3ActionPerformed
+
+    private void myButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_myButton1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -302,18 +428,22 @@ public class perfil extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel jEdad;
+    private javax.swing.JLabel jID;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
-    private javax.swing.JLabel jLabelNombreUsuario;
+    private javax.swing.JLabel jNombreC;
+    private javax.swing.JLabel jNombreU;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JLabel jUsername;
     private Vista.MyButton myButton1;
     private Vista.MyButton myButton3;
     private Vista.MyButton myButton4;
