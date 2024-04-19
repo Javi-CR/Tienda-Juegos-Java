@@ -249,7 +249,6 @@ private void SinDescuento() {
         jPanel1.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 90, 1280, 240));
 
         jPanel8.setBackground(new java.awt.Color(0, 0, 0));
-        jPanel8.setForeground(new java.awt.Color(0, 0, 0));
         jPanel1.add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 500, 1310, 280));
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
@@ -352,6 +351,8 @@ private void SinDescuento() {
 
     private void myButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton5ActionPerformed
         // TODO add your handling code here:
+        dispose();
+        new Biblioteca().setVisible(true);
     }//GEN-LAST:event_myButton5ActionPerformed
 
     private void myButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton6ActionPerformed

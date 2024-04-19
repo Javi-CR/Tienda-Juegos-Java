@@ -28,7 +28,7 @@ public class conexion {
         conectar();
     }
     
-    private void conectar(){
+    public void conectar(){
         try {
             Class.forName("oracle.jdbc.OracleDriver"); //Driver
             url = "jdbc:oracle:thin:@localhost:1521:orcl";
@@ -213,7 +213,80 @@ public class conexion {
     }
     return rutasEIds;
 }
+    
+    //EN PROCESO 
+    
+    public ResultSet obtenerJuegosUsuario(int idUsuario) throws SQLException {
+        ResultSet rs = null;
+        try {
+            String query = "SELECT IDJUEGO FROM USUARIO_JUEGO WHERE IDUSUARIO = ?";
+            PreparedStatement pstmt = conn.prepareStatement(query);
+            pstmt.setInt(1, idUsuario);
+            rs = pstmt.executeQuery();
+        } catch (SQLException e) {
+            System.out.println("Error al obtener los juegos del usuario: " + e.getMessage());
+            throw e; // Lanza la excepción para que sea manejada en el código que llama a este método
+        }
+        return rs;
+    }
+    
+    public String obtenerNombreJuegoPorId(int idJuego) {
+        String nombreJuego = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            String query = "SELECT NOMBRE FROM JUEGO WHERE IDJUEGO = ?";
+            pstmt = conn.prepareStatement(query);
+            pstmt.setInt(1, idJuego);
+            rs = pstmt.executeQuery();
+            if (rs.next()) {
+                nombreJuego = rs.getString("NOMBRE");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al obtener el nombre del juego: " + e.getMessage());
+        } finally {
+            // Cerrar recursos en un bloque finally
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+            } catch (SQLException e) {
+                System.out.println("Error al cerrar los recursos: " + e.getMessage());
+            }
+        }
+        return nombreJuego;
+    }
+    
+    public boolean verificarJuegoAsociadoUsuario(int idJuego, int idUsuario) {
+        boolean juegoAsociado = false;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            String query = "SELECT 1 FROM USUARIO_JUEGO WHERE IDUSUARIO = ? AND IDJUEGO = ?";
+            pstmt = conn.prepareStatement(query);
+            pstmt.setInt(1, idUsuario);
+            pstmt.setInt(2, idJuego);
+            rs = pstmt.executeQuery();
+            juegoAsociado = rs.next(); // Si el ResultSet tiene al menos una fila, significa que el juego está asociado al usuario
+        } catch (SQLException e) {
+            System.out.println("Error al verificar si el juego está asociado al usuario: " + e.getMessage());
+        } finally {
+            // Cerrar recursos en un bloque finally
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+            } catch (SQLException e) {
+                System.out.println("Error al cerrar los recursos: " + e.getMessage());
+            }
+        }
+        return juegoAsociado;
+    }
 
-    
 }
-    

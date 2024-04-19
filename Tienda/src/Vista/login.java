@@ -151,7 +151,7 @@ public class login extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(null, "Correo o contraseña incorrectos");
             }
         }
-
+        
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jCorreoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCorreoActionPerformed

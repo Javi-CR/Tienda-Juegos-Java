@@ -4,71 +4,258 @@
  */
 package Vista;
 
-import javax.swing.*;
-import java.awt.*;
+import Conexion.Sesion;
+import Conexion.Usuarios;
+import Conexion.conexion;
+import java.awt.Image;
 import java.io.IOException;
-import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import javax.imageio.ImageIO;
+import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
-/**
- *
- * @author greiv
- */
+//EN PROCESO 
+
 public class Biblioteca extends javax.swing.JFrame {
 
-    /**
-     * Creates new form Biblioteca
-     */
-    public Biblioteca() {
+    private ImageIcon imagenBienvenidaOriginal;
+    private Connection conn; // Variable de instancia para la conexión a la base de datos
+
+    public Biblioteca() { 
         initComponents();
         setTitle("Biblioteca");
         setResizable(false);
         setLocationRelativeTo(null);
         mostrarImagenDesdeInternet("https://jumpseller.s3.eu-west-1.amazonaws.com/store/juegosya/assets/banner_nintendo.jpg", Imagen_para_juego);
+        
+        // Crear una instancia de la clase conexion y establecer la conexión
+        conexion con = new conexion();
+        con.conectar();
+        conn = con.getConexion(); // Obtener la conexión
+
+        int id = Sesion.usuarioId;
+        Usuarios usuarios = new Usuarios(); // Crea una instancia de la clase Usuarios
+        String nombreUsuario = usuarios.obtenerNombreUsuario(id); // Llama al método obtenerNombreUsuario(id)
+        jNombreU.setText(nombreUsuario);
+        
+        // Mostrar nombres de todos los juegos
+        mostrarNombreJuego(1, JuegoEjemplo1);
+        mostrarNombreJuego(2, JuegoEjemplo2);
+        mostrarNombreJuego(3, JuegoEjemplo3);
+        mostrarNombreJuego(4, JuegoEjemplo4);
+        mostrarNombreJuego(5, JuegoEjemplo5);
+        
+        // Ocultar los JLabels de los juegos
+        JuegoEjemplo1.setVisible(false);
+        JuegoEjemplo2.setVisible(false);
+        JuegoEjemplo3.setVisible(false);
+        JuegoEjemplo4.setVisible(false);
+        JuegoEjemplo5.setVisible(false);
+        
+        
+
+
+        // Agregar listeners de clic a los JLabels de los juegos
+        JuegoEjemplo1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                JuegoEjemplo1MouseClicked(evt);
+            }
+        });
+
+        JuegoEjemplo2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                JuegoEjemplo2MouseClicked(evt);
+            }
+        });
+
+        JuegoEjemplo3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                JuegoEjemplo3MouseClicked(evt);
+            }
+        });
+        
+        JuegoEjemplo4.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                JuegoEjemplo4MouseClicked(evt);
+            }
+        });
+        
+        JuegoEjemplo5.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                JuegoEjemplo5MouseClicked(evt);
+            }
+        });
+        
+        if (id == Sesion.usuarioId) {
+            // Verificar si el usuario tiene asociado el juego 1
+            boolean juego1Asociado = verificarJuegoAsociadoUsuario(1, id);
+            if (juego1Asociado == true) {
+                JuegoEjemplo1.setVisible(true);
+            } else {
+                JuegoEjemplo1.setVisible(false);
+            }
+            // Verificar si el usuario tiene asociado el juego 2
+            boolean juego2Asociado = verificarJuegoAsociadoUsuario(2, id);
+            if (juego2Asociado == true) {
+                JuegoEjemplo2.setVisible(true);
+            } else {
+                JuegoEjemplo2.setVisible(false);
+            }
+            // Verificar si el usuario tiene asociado el juego 2
+            boolean juego3Asociado = verificarJuegoAsociadoUsuario(3, id);
+            if (juego3Asociado == true) {
+                JuegoEjemplo3.setVisible(true);
+            } else {
+                JuegoEjemplo3.setVisible(false);
+            }
+            // Verificar si el usuario tiene asociado el juego 2
+            boolean juego4Asociado = verificarJuegoAsociadoUsuario(4, id);
+            if (juego4Asociado == true) {
+                JuegoEjemplo4.setVisible(true);
+            } else {
+                JuegoEjemplo4.setVisible(false);
+            }
+            // Verificar si el usuario tiene asociado el juego 2
+            boolean juego5Asociado = verificarJuegoAsociadoUsuario(5, id);
+            if (juego5Asociado == true) {
+                JuegoEjemplo5.setVisible(true);
+            } else {
+                JuegoEjemplo5.setVisible(false);
+            }
+        }
+    }
+    
+    public boolean verificarJuegoAsociadoUsuario(int idJuego, int idUsuario) {
+        boolean juegoAsociado = false;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            String query = "SELECT 1 FROM USUARIO_JUEGO WHERE IDUSUARIO = ? AND IDJUEGO = ?";
+            pstmt = conn.prepareStatement(query);
+            pstmt.setInt(1, idUsuario);
+            pstmt.setInt(2, idJuego);
+            rs = pstmt.executeQuery();
+            juegoAsociado = rs.next(); // Si el ResultSet tiene al menos una fila, significa que el juego está asociado al usuario
+        } catch (SQLException e) {
+            System.out.println("Error al verificar si el juego está asociado al usuario: " + e.getMessage());
+        } finally {
+            // Cerrar recursos en un bloque finally
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+            } catch (SQLException e) {
+                System.out.println("Error al cerrar los recursos: " + e.getMessage());
+            }
+        }
+        return juegoAsociado;
     }
 
     private void mostrarImagenDesdeInternet(String urlImagen, JPanel panel) {
         try {
             // Descargar la imagen desde la URL
-            URL url = new URL(urlImagen);
-            Image imagenOriginal = ImageIO.read(url);
+            java.net.URL url = new java.net.URL(urlImagen);
+            java.awt.Image imagenOriginal = javax.imageio.ImageIO.read(url);
 
             // Redimensionar la imagen a un tamaño específico manteniendo la relación de aspecto
-            Image imagenRedimensionada = imagenOriginal.getScaledInstance(1230, 220, Image.SCALE_SMOOTH);
+            java.awt.Image imagenRedimensionada = imagenOriginal.getScaledInstance(1060, 220, java.awt.Image.SCALE_SMOOTH);
 
             // Crear un ImageIcon con la imagen redimensionada
             ImageIcon icono = new ImageIcon(imagenRedimensionada);
 
-            // Crear un JLabel con el ImageIcon y agregarlo al panel especificado
+            // Establecer el ImageIcon en el JPanel
+            panel.removeAll();
             JLabel label = new JLabel(icono);
-            panel.setLayout(new BorderLayout());
-            panel.add(label, BorderLayout.CENTER);
-        } catch (IOException e) {
+            panel.setLayout(new java.awt.BorderLayout());
+            panel.add(label, java.awt.BorderLayout.CENTER);
+            panel.revalidate();
+            panel.repaint();
+        } catch (java.io.IOException e) {
             System.out.println("Error al cargar la imagen desde la URL: " + e.getMessage());
         }
     }
-    
-    private void cambiarImagen(String urlImagen, JPanel panel) {
-        try {
-            // Descargar la nueva imagen desde la URL
-            URL url = new URL(urlImagen);
-            Image imagenOriginal = ImageIO.read(url);
 
-            // Redimensionar la nueva imagen a un tamaño específico manteniendo la relación de aspecto
-            Image imagenRedimensionada = imagenOriginal.getScaledInstance(1230, 220, Image.SCALE_SMOOTH);
+    // Método para mostrar la imagen de un juego en un JLabel dado
+    private void mostrarImagenJuego(int idJuego, JLabel label) {
+        // Crear una instancia de la clase conexión
+        conexion conn = new conexion();
 
-            // Crear un ImageIcon con la nueva imagen redimensionada
-            ImageIcon icono = new ImageIcon(imagenRedimensionada);
+        // Obtener la ruta de la imagen del juego con el ID especificado
+        String rutaImagen = conn.obtenerRutaImagen(idJuego);
 
-            // Obtener el primer componente (el JLabel) del panel
-            Component[] components = panel.getComponents();
-            if (components.length > 0 && components[0] instanceof JLabel) {
-                JLabel label = (JLabel) components[0];
-                // Establecer el nuevo ImageIcon en el JLabel
+        // Verificar si se encontró la ruta de la imagen
+        if (rutaImagen != null) {
+            try {
+                // Descargar la imagen desde la URL
+                java.net.URL url = new java.net.URL(rutaImagen);
+                java.awt.Image imagenOriginal = javax.imageio.ImageIO.read(url);
+
+                // Redimensionar la imagen a un tamaño específico manteniendo la relación de aspecto
+                java.awt.Image imagenRedimensionada = imagenOriginal.getScaledInstance(1060, 220, java.awt.Image.SCALE_SMOOTH);
+
+                // Crear un ImageIcon con la nueva imagen redimensionada
+                ImageIcon icono = new ImageIcon(imagenRedimensionada);
+
+                // Establecer el ImageIcon en el JLabel
                 label.setIcon(icono);
+            } catch (java.io.IOException e) {
+                System.out.println("Error al cargar la imagen desde la URL: " + e.getMessage());
             }
-        } catch (IOException e) {
-            System.out.println("Error al cargar la nueva imagen desde la URL: " + e.getMessage());
+        } else {
+            System.out.println("No se encontró ninguna imagen para el juego con ID: " + idJuego);
+        }
+    }
+
+    // Método para actualizar la imagen de bienvenida con la del juego correspondiente
+    private void actualizarImagenBienvenida(int idJuego) {
+        conexion conn = new conexion();
+        String rutaImagen = conn.obtenerRutaImagen(idJuego);
+
+        if (rutaImagen != null) {
+            try {
+                java.net.URL url = new java.net.URL(rutaImagen);
+                java.awt.Image imagenOriginal = javax.imageio.ImageIO.read(url);
+
+                // Redimensionar la imagen a un tamaño específico manteniendo la relación de aspecto
+                java.awt.Image imagenRedimensionada = imagenOriginal.getScaledInstance(1060, 220, java.awt.Image.SCALE_SMOOTH);
+
+                // Crear un ImageIcon con la nueva imagen redimensionada
+                ImageIcon nuevaImagen = new ImageIcon(imagenRedimensionada);
+
+                // Establecer el nuevo ImageIcon en el JPanel de la imagen de bienvenida
+                mostrarImagenDesdeInternet(rutaImagen, Imagen_para_juego);
+            } catch (java.io.IOException e) {
+                System.out.println("Error al cargar la imagen desde la URL: " + e.getMessage());
+            }
+        } else {
+            System.out.println("No se encontró ninguna imagen para el juego con ID: " + idJuego);
+        }
+    }
+    
+    private void mostrarNombreJuego(int idJuego, JLabel label) {
+        // Definir un arreglo con los nombres de los juegos en el orden deseado
+        String[] nombresJuegos = {"ARK", "The Legend of Zelda: BOTW", "Super Mario Odyssey", "Read Dead Redemption 2"};
+        
+        // Verificar si el ID de juego está dentro del rango de índices del arreglo
+        if (idJuego >= 1 && idJuego <= nombresJuegos.length) {
+            // Obtener el nombre del juego según su ID
+            String nombreJuego = nombresJuegos[idJuego - 1];
+            
+            // Establecer el nombre del juego en el JLabel
+            label.setText(nombreJuego);
+        } else {
+            // Si el ID de juego no está dentro del rango, establecer un nombre genérico
+            label.setText("Juego " + idJuego);
         }
     }
 
@@ -83,18 +270,12 @@ public class Biblioteca extends javax.swing.JFrame {
 
         myButton9 = new Vista.MyButton();
         bg = new javax.swing.JPanel();
-        panelRound1 = new Clases.PanelRound();
-        myButton1 = new Vista.MyButton();
-        jLabel4 = new javax.swing.JLabel();
-        myButton5 = new Vista.MyButton();
-        myButton6 = new Vista.MyButton();
-        myButton7 = new Vista.MyButton();
-        myButton8 = new Vista.MyButton();
         Barra_Lateral_Juegos = new javax.swing.JPanel();
         JuegoEjemplo1 = new javax.swing.JLabel();
         JuegoEjemplo2 = new javax.swing.JLabel();
         JuegoEjemplo3 = new javax.swing.JLabel();
         JuegoEjemplo4 = new javax.swing.JLabel();
+        JuegoEjemplo5 = new javax.swing.JLabel();
         Barra_Opciones_Juego = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
@@ -116,8 +297,13 @@ public class Biblioteca extends javax.swing.JFrame {
         Separador_Actividad = new javax.swing.JSeparator();
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
-        jPanel3 = new javax.swing.JPanel();
-        jPanel4 = new javax.swing.JPanel();
+        panelRound1 = new Clases.PanelRound();
+        myButton1 = new Vista.MyButton();
+        jNombreU = new javax.swing.JLabel();
+        myButton5 = new Vista.MyButton();
+        myButton6 = new Vista.MyButton();
+        myButton7 = new Vista.MyButton();
+        myButton8 = new Vista.MyButton();
 
         myButton9.setForeground(new java.awt.Color(255, 255, 255));
         myButton9.setText("Inicio");
@@ -140,101 +326,10 @@ public class Biblioteca extends javax.swing.JFrame {
         bg.setBackground(new java.awt.Color(51, 51, 51));
         bg.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        panelRound1.setBackground(new java.awt.Color(0, 102, 102));
-        panelRound1.setRoundBottomLeft(20);
-        panelRound1.setRoundBottomRight(20);
-        panelRound1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        myButton1.setBorderColor(new java.awt.Color(255, 255, 255));
-        myButton1.setBorderPainted(false);
-        myButton1.setColorClick(new java.awt.Color(255, 255, 255));
-        myButton1.setColorOver(new java.awt.Color(255, 255, 255));
-        myButton1.setRadius(40);
-        myButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                myButton1ActionPerformed(evt);
-            }
-        });
-        panelRound1.add(myButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1380, 10, 40, 40));
-
-        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel4.setText("Usuario...");
-        panelRound1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(1440, 10, 100, 40));
-
-        myButton5.setForeground(new java.awt.Color(255, 255, 255));
-        myButton5.setText("Biblioteca");
-        myButton5.setBorderColor(new java.awt.Color(0, 102, 102));
-        myButton5.setBorderPainted(false);
-        myButton5.setColor(new java.awt.Color(0, 102, 102));
-        myButton5.setColorClick(new java.awt.Color(0, 51, 51));
-        myButton5.setColorOver(new java.awt.Color(51, 51, 51));
-        myButton5.setFocusPainted(false);
-        myButton5.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        myButton5.setRadius(30);
-        myButton5.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                myButton5ActionPerformed(evt);
-            }
-        });
-        panelRound1.add(myButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 10, 140, 40));
-
-        myButton6.setForeground(new java.awt.Color(255, 255, 255));
-        myButton6.setText("Perfil");
-        myButton6.setBorderColor(new java.awt.Color(0, 102, 102));
-        myButton6.setBorderPainted(false);
-        myButton6.setColor(new java.awt.Color(0, 102, 102));
-        myButton6.setColorClick(new java.awt.Color(0, 51, 51));
-        myButton6.setColorOver(new java.awt.Color(51, 51, 51));
-        myButton6.setFocusPainted(false);
-        myButton6.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        myButton6.setRadius(30);
-        myButton6.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                myButton6ActionPerformed(evt);
-            }
-        });
-        panelRound1.add(myButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 10, 80, 40));
-
-        myButton7.setForeground(new java.awt.Color(255, 255, 255));
-        myButton7.setText("Comunidad");
-        myButton7.setBorderColor(new java.awt.Color(0, 102, 102));
-        myButton7.setBorderPainted(false);
-        myButton7.setColor(new java.awt.Color(0, 102, 102));
-        myButton7.setColorClick(new java.awt.Color(0, 51, 51));
-        myButton7.setColorOver(new java.awt.Color(51, 51, 51));
-        myButton7.setFocusPainted(false);
-        myButton7.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        myButton7.setRadius(30);
-        myButton7.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                myButton7ActionPerformed(evt);
-            }
-        });
-        panelRound1.add(myButton7, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 10, 140, 40));
-
-        myButton8.setForeground(new java.awt.Color(255, 255, 255));
-        myButton8.setText("Inicio");
-        myButton8.setBorderColor(new java.awt.Color(0, 102, 102));
-        myButton8.setBorderPainted(false);
-        myButton8.setColor(new java.awt.Color(0, 102, 102));
-        myButton8.setColorClick(new java.awt.Color(0, 51, 51));
-        myButton8.setColorOver(new java.awt.Color(51, 51, 51));
-        myButton8.setFocusPainted(false);
-        myButton8.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        myButton8.setRadius(30);
-        myButton8.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                myButton8ActionPerformed(evt);
-            }
-        });
-        panelRound1.add(myButton8, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 80, 40));
-
-        bg.add(panelRound1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1520, 60));
-
         Barra_Lateral_Juegos.setBackground(new java.awt.Color(102, 102, 102));
         Barra_Lateral_Juegos.setNextFocusableComponent(Barra_Lateral_Juegos);
 
-        JuegoEjemplo1.setFont(new java.awt.Font("Roboto", 0, 24)); // NOI18N
+        JuegoEjemplo1.setFont(new java.awt.Font("Roboto", 0, 18)); // NOI18N
         JuegoEjemplo1.setText("Ejemplo");
         JuegoEjemplo1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         JuegoEjemplo1.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -246,7 +341,7 @@ public class Biblioteca extends javax.swing.JFrame {
             }
         });
 
-        JuegoEjemplo2.setFont(new java.awt.Font("Roboto", 0, 24)); // NOI18N
+        JuegoEjemplo2.setFont(new java.awt.Font("Roboto", 0, 18)); // NOI18N
         JuegoEjemplo2.setText("Ejemplo");
         JuegoEjemplo2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         JuegoEjemplo2.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -255,13 +350,32 @@ public class Biblioteca extends javax.swing.JFrame {
             }
         });
 
-        JuegoEjemplo3.setFont(new java.awt.Font("Roboto", 0, 24)); // NOI18N
+        JuegoEjemplo3.setFont(new java.awt.Font("Roboto", 0, 18)); // NOI18N
         JuegoEjemplo3.setText("Ejemplo");
         JuegoEjemplo3.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        JuegoEjemplo3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                JuegoEjemplo3MouseClicked(evt);
+            }
+        });
 
-        JuegoEjemplo4.setFont(new java.awt.Font("Roboto", 0, 24)); // NOI18N
+        JuegoEjemplo4.setFont(new java.awt.Font("Roboto", 0, 18)); // NOI18N
         JuegoEjemplo4.setText("Ejemplo");
         JuegoEjemplo4.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        JuegoEjemplo4.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                JuegoEjemplo4MouseClicked(evt);
+            }
+        });
+
+        JuegoEjemplo5.setFont(new java.awt.Font("Roboto", 0, 18)); // NOI18N
+        JuegoEjemplo5.setText("Ejemplo");
+        JuegoEjemplo5.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        JuegoEjemplo5.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                JuegoEjemplo5MouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout Barra_Lateral_JuegosLayout = new javax.swing.GroupLayout(Barra_Lateral_Juegos);
         Barra_Lateral_Juegos.setLayout(Barra_Lateral_JuegosLayout);
@@ -270,11 +384,12 @@ public class Biblioteca extends javax.swing.JFrame {
             .addGroup(Barra_Lateral_JuegosLayout.createSequentialGroup()
                 .addGap(19, 19, 19)
                 .addGroup(Barra_Lateral_JuegosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(JuegoEjemplo5)
                     .addComponent(JuegoEjemplo4)
                     .addComponent(JuegoEjemplo2)
                     .addComponent(JuegoEjemplo1)
                     .addComponent(JuegoEjemplo3))
-                .addContainerGap(184, Short.MAX_VALUE))
+                .addContainerGap(207, Short.MAX_VALUE))
         );
         Barra_Lateral_JuegosLayout.setVerticalGroup(
             Barra_Lateral_JuegosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -287,7 +402,9 @@ public class Biblioteca extends javax.swing.JFrame {
                 .addComponent(JuegoEjemplo3)
                 .addGap(18, 18, 18)
                 .addComponent(JuegoEjemplo4)
-                .addContainerGap(572, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(JuegoEjemplo5)
+                .addContainerGap(550, Short.MAX_VALUE))
         );
 
         bg.add(Barra_Lateral_Juegos, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 60, 290, 770));
@@ -322,19 +439,19 @@ public class Biblioteca extends javax.swing.JFrame {
             .addGroup(Barra_Opciones_JuegoLayout.createSequentialGroup()
                 .addGap(33, 33, 33)
                 .addComponent(jLabel7)
-                .addGap(99, 99, 99)
+                .addGap(56, 56, 56)
                 .addComponent(jLabel8)
-                .addGap(107, 107, 107)
+                .addGap(52, 52, 52)
                 .addComponent(jLabel9)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 122, Short.MAX_VALUE)
+                .addGap(55, 55, 55)
                 .addComponent(jLabel10)
-                .addGap(123, 123, 123)
+                .addGap(49, 49, 49)
                 .addComponent(jLabel11)
-                .addGap(121, 121, 121)
+                .addGap(57, 57, 57)
                 .addComponent(jLabel12)
-                .addGap(105, 105, 105)
+                .addGap(44, 44, 44)
                 .addComponent(jLabel13)
-                .addGap(74, 74, 74))
+                .addContainerGap(258, Short.MAX_VALUE))
         );
         Barra_Opciones_JuegoLayout.setVerticalGroup(
             Barra_Opciones_JuegoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -351,7 +468,7 @@ public class Biblioteca extends javax.swing.JFrame {
                 .addContainerGap(15, Short.MAX_VALUE))
         );
 
-        bg.add(Barra_Opciones_Juego, new org.netbeans.lib.awtextra.AbsoluteConstraints(283, 342, 1240, -1));
+        bg.add(Barra_Opciones_Juego, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 340, 1060, -1));
 
         Imagen_para_juego.setPreferredSize(new java.awt.Dimension(1230, 220));
 
@@ -359,14 +476,14 @@ public class Biblioteca extends javax.swing.JFrame {
         Imagen_para_juego.setLayout(Imagen_para_juegoLayout);
         Imagen_para_juegoLayout.setHorizontalGroup(
             Imagen_para_juegoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1230, Short.MAX_VALUE)
+            .addGap(0, 1060, Short.MAX_VALUE)
         );
         Imagen_para_juegoLayout.setVerticalGroup(
             Imagen_para_juegoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 220, Short.MAX_VALUE)
         );
 
-        bg.add(Imagen_para_juego, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 56, 1230, 220));
+        bg.add(Imagen_para_juego, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 60, 1060, 220));
 
         myButton10.setBackground(new java.awt.Color(102, 255, 102));
         myButton10.setText("Jugar");
@@ -438,7 +555,7 @@ public class Biblioteca extends javax.swing.JFrame {
             .addGap(0, 180, Short.MAX_VALUE)
         );
 
-        bg.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 570, 260, 180));
+        bg.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 570, 260, 180));
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -453,39 +570,97 @@ public class Biblioteca extends javax.swing.JFrame {
 
         bg.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 570, 260, 180));
 
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 260, Short.MAX_VALUE)
-        );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 180, Short.MAX_VALUE)
-        );
+        panelRound1.setBackground(new java.awt.Color(0, 102, 102));
+        panelRound1.setRoundBottomLeft(20);
+        panelRound1.setRoundBottomRight(20);
+        panelRound1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        bg.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(1240, 570, -1, -1));
+        myButton1.setBorderColor(new java.awt.Color(255, 255, 255));
+        myButton1.setBorderPainted(false);
+        myButton1.setColorClick(new java.awt.Color(255, 255, 255));
+        myButton1.setColorOver(new java.awt.Color(255, 255, 255));
+        myButton1.setRadius(40);
+        panelRound1.add(myButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1160, 10, 40, 40));
 
-        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
-        jPanel4.setLayout(jPanel4Layout);
-        jPanel4Layout.setHorizontalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 260, Short.MAX_VALUE)
-        );
-        jPanel4Layout.setVerticalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 180, Short.MAX_VALUE)
-        );
+        jNombreU.setForeground(new java.awt.Color(255, 255, 255));
+        jNombreU.setText("Usuario...");
+        panelRound1.add(jNombreU, new org.netbeans.lib.awtextra.AbsoluteConstraints(1220, 10, 100, 40));
 
-        bg.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(930, 570, -1, -1));
+        myButton5.setForeground(new java.awt.Color(255, 255, 255));
+        myButton5.setText("Biblioteca");
+        myButton5.setBorderColor(new java.awt.Color(0, 102, 102));
+        myButton5.setBorderPainted(false);
+        myButton5.setColor(new java.awt.Color(0, 102, 102));
+        myButton5.setColorClick(new java.awt.Color(0, 51, 51));
+        myButton5.setColorOver(new java.awt.Color(51, 51, 51));
+        myButton5.setFocusPainted(false);
+        myButton5.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        myButton5.setRadius(30);
+        myButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                myButton5ActionPerformed(evt);
+            }
+        });
+        panelRound1.add(myButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 10, 140, 40));
+
+        myButton6.setForeground(new java.awt.Color(255, 255, 255));
+        myButton6.setText("Perfil");
+        myButton6.setBorderColor(new java.awt.Color(0, 102, 102));
+        myButton6.setBorderPainted(false);
+        myButton6.setColor(new java.awt.Color(0, 102, 102));
+        myButton6.setColorClick(new java.awt.Color(0, 51, 51));
+        myButton6.setColorOver(new java.awt.Color(51, 51, 51));
+        myButton6.setFocusPainted(false);
+        myButton6.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        myButton6.setRadius(30);
+        myButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                myButton6ActionPerformed(evt);
+            }
+        });
+        panelRound1.add(myButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 10, 80, 40));
+
+        myButton7.setForeground(new java.awt.Color(255, 255, 255));
+        myButton7.setText("Comunidad");
+        myButton7.setBorderColor(new java.awt.Color(0, 102, 102));
+        myButton7.setBorderPainted(false);
+        myButton7.setColor(new java.awt.Color(0, 102, 102));
+        myButton7.setColorClick(new java.awt.Color(0, 51, 51));
+        myButton7.setColorOver(new java.awt.Color(51, 51, 51));
+        myButton7.setFocusPainted(false);
+        myButton7.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        myButton7.setRadius(30);
+        myButton7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                myButton7ActionPerformed(evt);
+            }
+        });
+        panelRound1.add(myButton7, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 10, 140, 40));
+
+        myButton8.setForeground(new java.awt.Color(255, 255, 255));
+        myButton8.setText("Inicio");
+        myButton8.setBorderColor(new java.awt.Color(0, 102, 102));
+        myButton8.setBorderPainted(false);
+        myButton8.setColor(new java.awt.Color(0, 102, 102));
+        myButton8.setColorClick(new java.awt.Color(0, 51, 51));
+        myButton8.setColorOver(new java.awt.Color(51, 51, 51));
+        myButton8.setFocusPainted(false);
+        myButton8.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        myButton8.setRadius(30);
+        myButton8.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                myButton8ActionPerformed(evt);
+            }
+        });
+        panelRound1.add(myButton8, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 80, 40));
+
+        bg.add(panelRound1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1350, 60));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(bg, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(bg, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -494,28 +669,6 @@ public class Biblioteca extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void myButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton8ActionPerformed
-        // TODO add your handling code here:
-        dispose();
-        new Home().setVisible(true);
-    }//GEN-LAST:event_myButton8ActionPerformed
-
-    private void myButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton7ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_myButton7ActionPerformed
-
-    private void myButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton6ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_myButton6ActionPerformed
-
-    private void myButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton5ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_myButton5ActionPerformed
-
-    private void myButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_myButton1ActionPerformed
 
     private void myButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton9ActionPerformed
         // TODO add your handling code here:
@@ -531,14 +684,49 @@ public class Biblioteca extends javax.swing.JFrame {
     }//GEN-LAST:event_JuegoEjemplo1MousePressed
 
     private void JuegoEjemplo1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_JuegoEjemplo1MouseClicked
-        // Llama al método para cambiar la imagen del panel al hacer clic en JuegoEjemplo1
-        cambiarImagen("https://assets.nintendo.com/image/upload/c_fill,w_1200/q_auto:best/f_auto/dpr_2.0/ncom/software/switch/70010000008661/9da4158e053625c86c36e495abffe6952e6caf494e4af5c849d95d9c23dbdcb5", Imagen_para_juego);
+        // TODO add your handling code here:
+        actualizarImagenBienvenida(1);
     }//GEN-LAST:event_JuegoEjemplo1MouseClicked
 
     private void JuegoEjemplo2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_JuegoEjemplo2MouseClicked
         // Llama al método para cambiar la imagen del panel al hacer clic en JuegoEjemplo2
-        cambiarImagen("https://www.gameit.es/wp-content/uploads/2024/03/helldivers-2-1.jpg", Imagen_para_juego);
+        actualizarImagenBienvenida(2);
     }//GEN-LAST:event_JuegoEjemplo2MouseClicked
+
+    private void myButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton5ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_myButton5ActionPerformed
+
+    private void myButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton6ActionPerformed
+        // TODO add your handling code here:
+        dispose();
+        new perfil().setVisible(true);
+    }//GEN-LAST:event_myButton6ActionPerformed
+
+    private void myButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton7ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_myButton7ActionPerformed
+
+    private void myButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton8ActionPerformed
+        // TODO add your handling code here:
+        dispose();
+        new Home().setVisible(true);
+    }//GEN-LAST:event_myButton8ActionPerformed
+
+    private void JuegoEjemplo3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_JuegoEjemplo3MouseClicked
+        // TODO add your handling code here:
+        actualizarImagenBienvenida(3);
+    }//GEN-LAST:event_JuegoEjemplo3MouseClicked
+
+    private void JuegoEjemplo4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_JuegoEjemplo4MouseClicked
+        // TODO add your handling code here:
+        actualizarImagenBienvenida(4);
+    }//GEN-LAST:event_JuegoEjemplo4MouseClicked
+
+    private void JuegoEjemplo5MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_JuegoEjemplo5MouseClicked
+        // TODO add your handling code here:
+        actualizarImagenBienvenida(5);
+    }//GEN-LAST:event_JuegoEjemplo5MouseClicked
 
     /**
      * @param args the command line arguments
@@ -587,6 +775,7 @@ public class Biblioteca extends javax.swing.JFrame {
     private javax.swing.JLabel JuegoEjemplo2;
     private javax.swing.JLabel JuegoEjemplo3;
     private javax.swing.JLabel JuegoEjemplo4;
+    private javax.swing.JLabel JuegoEjemplo5;
     private javax.swing.JLabel Logros;
     private javax.swing.JSeparator Separador_Actividad;
     private javax.swing.JLabel Tiempo_de_Juego;
@@ -595,14 +784,12 @@ public class Biblioteca extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JLabel jNombreU;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel4;
     private javax.swing.JTextField jTextField_Para_Actividad;
     private Vista.MyButton myButton1;
     private Vista.MyButton myButton10;
