@@ -4,73 +4,116 @@
  */
 package Vista;
 
-import javax.swing.*;
-import java.awt.*;
-import java.io.IOException;
+import Conexion.Sesion;
+import Conexion.Tienda;
+import Conexion.Usuarios;
+import java.awt.Image;
+import java.net.MalformedURLException;
 import java.net.URL;
-import javax.imageio.ImageIO;
+import java.util.List;
+import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
+import javax.swing.event.ListSelectionEvent;
+
 
 /**
  *
- * @author greiv
+ * @author javie
  */
 public class Biblioteca extends javax.swing.JFrame {
 
     /**
-     * Creates new form Biblioteca
+     * Creates new form Biblioteca1
      */
     public Biblioteca() {
         initComponents();
         setTitle("Biblioteca");
         setResizable(false);
         setLocationRelativeTo(null);
-        mostrarImagenDesdeInternet("https://jumpseller.s3.eu-west-1.amazonaws.com/store/juegosya/assets/banner_nintendo.jpg", Imagen_para_juego);
+
+        int id = Sesion.usuarioId;
+        Usuarios usuarios = new Usuarios(); // Crea una instancia de la clase Usuarios
+        String nombreUsuario = usuarios.obtenerNombreUsuario(id); // Llama al método obtenerNombreUsuario(id)
+        jNombreU.setText(nombreUsuario);
+
+        String rutaImagen = usuarios.obtenerRutaImagen(id); // Llama al método obtenerRutaImagen(id)
+        if (rutaImagen != null) {
+            ImageIcon icon = usuarios.createRoundImage(rutaImagen); // Llama al método createRoundImage(rutaImagen)
+            if (icon != null) {
+                Image img1 = icon.getImage();
+                Image newimg1 = img1.getScaledInstance(38, 38, java.awt.Image.SCALE_SMOOTH); // Ajusta el tamaño de la imagen para myButton1
+                ImageIcon icon1 = new ImageIcon(newimg1);
+                myButton1.setIcon(icon1);
+            } else {
+                System.out.println("No hay imagen disponible");
+            }
+        } else {
+            System.out.println("No hay imagen disponible");
+
+        }
+
+        actualizarJList();
+
+        jList.addListSelectionListener((ListSelectionEvent e) -> {
+            if (!e.getValueIsAdjusting()) {
+                Tienda tienda = new Tienda();
+                String nombreJuegoSeleccionado = jList.getSelectedValue();
+                String[] detallesJuego = tienda.obtenerDetallesJuegoPorNombre(nombreJuegoSeleccionado);
+                if (detallesJuego != null) {
+
+                    try {
+                        // Obtén la URL de la imagen
+                        URL url = new URL(detallesJuego[7]);
+
+                        // Crea un ImageIcon con la imagen de la URL
+                        ImageIcon icon = new ImageIcon(url);
+
+                        // Redimensiona la imagen al tamaño del label
+                        Image image = icon.getImage();
+                        Image resizedImage = image.getScaledInstance(jLabelimagen.getWidth(), jLabelimagen.getHeight(), java.awt.Image.SCALE_SMOOTH);
+
+                        // Crea un nuevo ImageIcon con la imagen redimensionada
+                        ImageIcon resizedIcon = new ImageIcon(resizedImage);
+
+                        // Configura el label con el nuevo ImageIcon
+                        jLabelimagen.setIcon(resizedIcon);
+                    } catch (MalformedURLException j) {
+                        System.out.println("La URL proporcionada no es válida: " + j.getMessage());
+                    } catch (IllegalArgumentException j) {
+                        System.out.println("Error al cargar la imagen: " + j.getMessage());
+                    }
+
+                    
+                    jLabelnJuego.setText(detallesJuego[1]);  // Asume que 'NOMBREJUEGO' es el segundo elemento en 'detallesJuego'
+                    jLabelnFecha.setText(detallesJuego[2]);  // Asume que 'FECHALANZAMIENTO' es el tercer elemento en 'detallesJuego'
+                }
+            }
+        });
+
     }
 
-    private void mostrarImagenDesdeInternet(String urlImagen, JPanel panel) {
-        try {
-            // Descargar la imagen desde la URL
-            URL url = new URL(urlImagen);
-            Image imagenOriginal = ImageIO.read(url);
+    public final void actualizarJList() {
+        // Obtén el ID del usuario actual
+        Tienda tienda = new Tienda();
+        int id = Sesion.usuarioId;
 
-            // Redimensionar la imagen a un tamaño específico manteniendo la relación de aspecto
-            Image imagenRedimensionada = imagenOriginal.getScaledInstance(1230, 220, Image.SCALE_SMOOTH);
+        // Obtén los nombres de los juegos del usuario actual
+        List<String> nombresJuegos = tienda.obtenerNombresJuegos(id);
 
-            // Crear un ImageIcon con la imagen redimensionada
-            ImageIcon icono = new ImageIcon(imagenRedimensionada);
+        // Crea un modelo para la JList
+        DefaultListModel<String> model = new DefaultListModel<>();
 
-            // Crear un JLabel con el ImageIcon y agregarlo al panel especificado
-            JLabel label = new JLabel(icono);
-            panel.setLayout(new BorderLayout());
-            panel.add(label, BorderLayout.CENTER);
-        } catch (IOException e) {
-            System.out.println("Error al cargar la imagen desde la URL: " + e.getMessage());
+        // Añade los nombres de los juegos al modelo
+        for (String nombreJuego : nombresJuegos) {
+            model.addElement(nombreJuego);
         }
+
+        // Configura la JList con el modelo
+        jList.setModel(model);
     }
     
-    private void cambiarImagen(String urlImagen, JPanel panel) {
-        try {
-            // Descargar la nueva imagen desde la URL
-            URL url = new URL(urlImagen);
-            Image imagenOriginal = ImageIO.read(url);
+    
 
-            // Redimensionar la nueva imagen a un tamaño específico manteniendo la relación de aspecto
-            Image imagenRedimensionada = imagenOriginal.getScaledInstance(1230, 220, Image.SCALE_SMOOTH);
-
-            // Crear un ImageIcon con la nueva imagen redimensionada
-            ImageIcon icono = new ImageIcon(imagenRedimensionada);
-
-            // Obtener el primer componente (el JLabel) del panel
-            Component[] components = panel.getComponents();
-            if (components.length > 0 && components[0] instanceof JLabel) {
-                JLabel label = (JLabel) components[0];
-                // Establecer el nuevo ImageIcon en el JLabel
-                label.setIcon(icono);
-            }
-        } catch (IOException e) {
-            System.out.println("Error al cargar la nueva imagen desde la URL: " + e.getMessage());
-        }
-    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -81,85 +124,141 @@ public class Biblioteca extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        myButton9 = new Vista.MyButton();
-        bg = new javax.swing.JPanel();
+        jPanel1 = new javax.swing.JPanel();
+        panelRound5 = new Clases.PanelRound();
+        myButton10 = new Vista.MyButton();
+        Tiempo_de_Juego = new javax.swing.JLabel();
+        jLabelnFecha = new javax.swing.JLabel();
+        Logros2 = new javax.swing.JLabel();
+        jLabelnJuego = new javax.swing.JLabel();
+        jLabelimagen = new javax.swing.JLabel();
+        panelRound3 = new Clases.PanelRound();
+        panelRound4 = new Clases.PanelRound();
+        panelRound2 = new Clases.PanelRound();
         panelRound1 = new Clases.PanelRound();
         myButton1 = new Vista.MyButton();
-        jLabel4 = new javax.swing.JLabel();
+        jNombreU = new javax.swing.JLabel();
         myButton5 = new Vista.MyButton();
         myButton6 = new Vista.MyButton();
         myButton7 = new Vista.MyButton();
         myButton8 = new Vista.MyButton();
-        Barra_Lateral_Juegos = new javax.swing.JPanel();
-        JuegoEjemplo1 = new javax.swing.JLabel();
-        JuegoEjemplo2 = new javax.swing.JLabel();
-        JuegoEjemplo3 = new javax.swing.JLabel();
-        JuegoEjemplo4 = new javax.swing.JLabel();
-        Barra_Opciones_Juego = new javax.swing.JPanel();
-        jLabel7 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
-        jLabel9 = new javax.swing.JLabel();
-        jLabel10 = new javax.swing.JLabel();
-        jLabel11 = new javax.swing.JLabel();
-        jLabel12 = new javax.swing.JLabel();
-        jLabel13 = new javax.swing.JLabel();
-        Imagen_para_juego = new javax.swing.JPanel();
-        myButton10 = new Vista.MyButton();
-        Tiempo_de_Juego = new javax.swing.JLabel();
-        Datos_Tiempo_de_Juego = new javax.swing.JLabel();
-        Última_Sesión = new javax.swing.JLabel();
-        Datos_Última_Sesión = new javax.swing.JLabel();
-        Logros = new javax.swing.JLabel();
-        Datos_Logros = new javax.swing.JLabel();
-        Actividad = new javax.swing.JLabel();
-        jTextField_Para_Actividad = new javax.swing.JTextField();
-        Separador_Actividad = new javax.swing.JSeparator();
-        jPanel1 = new javax.swing.JPanel();
-        jPanel2 = new javax.swing.JPanel();
-        jPanel3 = new javax.swing.JPanel();
-        jPanel4 = new javax.swing.JPanel();
-
-        myButton9.setForeground(new java.awt.Color(255, 255, 255));
-        myButton9.setText("Inicio");
-        myButton9.setBorderColor(new java.awt.Color(0, 102, 102));
-        myButton9.setBorderPainted(false);
-        myButton9.setColor(new java.awt.Color(0, 102, 102));
-        myButton9.setColorClick(new java.awt.Color(0, 51, 51));
-        myButton9.setColorOver(new java.awt.Color(51, 51, 51));
-        myButton9.setFocusPainted(false);
-        myButton9.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        myButton9.setRadius(30);
-        myButton9.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                myButton9ActionPerformed(evt);
-            }
-        });
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jList = new javax.swing.JList<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        bg.setBackground(new java.awt.Color(51, 51, 51));
-        bg.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        jPanel1.setBackground(new java.awt.Color(51, 51, 51));
+        jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        panelRound5.setBackground(new java.awt.Color(68, 68, 68));
+        panelRound5.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        myButton10.setBackground(new java.awt.Color(102, 255, 102));
+        myButton10.setText("Jugar");
+        myButton10.setBorderColor(new java.awt.Color(102, 255, 102));
+        myButton10.setBorderPainted(false);
+        myButton10.setColor(new java.awt.Color(102, 255, 102));
+        myButton10.setColorClick(new java.awt.Color(0, 51, 51));
+        myButton10.setColorOver(new java.awt.Color(51, 51, 51));
+        myButton10.setFocusPainted(false);
+        myButton10.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        myButton10.setRadius(30);
+        myButton10.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                myButton10ActionPerformed(evt);
+            }
+        });
+        panelRound5.add(myButton10, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 80, 40));
+
+        Tiempo_de_Juego.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
+        Tiempo_de_Juego.setForeground(new java.awt.Color(204, 204, 204));
+        Tiempo_de_Juego.setText("Tiempo de Juego");
+        panelRound5.add(Tiempo_de_Juego, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 20, -1, -1));
+
+        jLabelnFecha.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
+        jLabelnFecha.setForeground(new java.awt.Color(204, 204, 204));
+        jLabelnFecha.setText("fecha");
+        panelRound5.add(jLabelnFecha, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 20, -1, -1));
+
+        Logros2.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
+        Logros2.setForeground(new java.awt.Color(204, 204, 204));
+        Logros2.setText("Fecha de Compra:");
+        panelRound5.add(Logros2, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 20, 110, -1));
+
+        jLabelnJuego.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
+        jLabelnJuego.setForeground(new java.awt.Color(204, 204, 204));
+        jLabelnJuego.setText("Juego");
+        panelRound5.add(jLabelnJuego, new org.netbeans.lib.awtextra.AbsoluteConstraints(794, 20, 350, -1));
+
+        jPanel1.add(panelRound5, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 630, 1180, 60));
+
+        jLabelimagen.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jPanel1.add(jLabelimagen, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 60, 1180, 570));
+
+        panelRound3.setBackground(new java.awt.Color(68, 68, 68));
+
+        javax.swing.GroupLayout panelRound3Layout = new javax.swing.GroupLayout(panelRound3);
+        panelRound3.setLayout(panelRound3Layout);
+        panelRound3Layout.setHorizontalGroup(
+            panelRound3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 160, Short.MAX_VALUE)
+        );
+        panelRound3Layout.setVerticalGroup(
+            panelRound3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 10, Short.MAX_VALUE)
+        );
+
+        jPanel1.add(panelRound3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 60, 160, 10));
+
+        panelRound4.setBackground(new java.awt.Color(51, 51, 51));
+
+        javax.swing.GroupLayout panelRound4Layout = new javax.swing.GroupLayout(panelRound4);
+        panelRound4.setLayout(panelRound4Layout);
+        panelRound4Layout.setHorizontalGroup(
+            panelRound4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 20, Short.MAX_VALUE)
+        );
+        panelRound4Layout.setVerticalGroup(
+            panelRound4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 780, Short.MAX_VALUE)
+        );
+
+        jPanel1.add(panelRound4, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 60, 20, 780));
+
+        panelRound2.setBackground(new java.awt.Color(68, 68, 68));
+
+        javax.swing.GroupLayout panelRound2Layout = new javax.swing.GroupLayout(panelRound2);
+        panelRound2.setLayout(panelRound2Layout);
+        panelRound2Layout.setHorizontalGroup(
+            panelRound2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 160, Short.MAX_VALUE)
+        );
+        panelRound2Layout.setVerticalGroup(
+            panelRound2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 10, Short.MAX_VALUE)
+        );
+
+        jPanel1.add(panelRound2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 830, 160, 10));
 
         panelRound1.setBackground(new java.awt.Color(0, 102, 102));
-        panelRound1.setRoundBottomLeft(20);
-        panelRound1.setRoundBottomRight(20);
         panelRound1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         myButton1.setBorderColor(new java.awt.Color(255, 255, 255));
         myButton1.setBorderPainted(false);
         myButton1.setColorClick(new java.awt.Color(255, 255, 255));
         myButton1.setColorOver(new java.awt.Color(255, 255, 255));
+        myButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         myButton1.setRadius(40);
         myButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 myButton1ActionPerformed(evt);
             }
         });
-        panelRound1.add(myButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1380, 10, 40, 40));
+        panelRound1.add(myButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1160, 10, 40, 40));
 
-        jLabel4.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel4.setText("Usuario...");
-        panelRound1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(1440, 10, 100, 40));
+        jNombreU.setForeground(new java.awt.Color(255, 255, 255));
+        jNombreU.setText("Usuario...");
+        panelRound1.add(jNombreU, new org.netbeans.lib.awtextra.AbsoluteConstraints(1220, 10, 100, 40));
 
         myButton5.setForeground(new java.awt.Color(255, 255, 255));
         myButton5.setText("Biblioteca");
@@ -176,7 +275,7 @@ public class Biblioteca extends javax.swing.JFrame {
                 myButton5ActionPerformed(evt);
             }
         });
-        panelRound1.add(myButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 10, 140, 40));
+        panelRound1.add(myButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 10, 140, 40));
 
         myButton6.setForeground(new java.awt.Color(255, 255, 255));
         myButton6.setText("Perfil");
@@ -193,7 +292,7 @@ public class Biblioteca extends javax.swing.JFrame {
                 myButton6ActionPerformed(evt);
             }
         });
-        panelRound1.add(myButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 10, 80, 40));
+        panelRound1.add(myButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 10, 80, 40));
 
         myButton7.setForeground(new java.awt.Color(255, 255, 255));
         myButton7.setText("Comunidad");
@@ -229,271 +328,50 @@ public class Biblioteca extends javax.swing.JFrame {
         });
         panelRound1.add(myButton8, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 80, 40));
 
-        bg.add(panelRound1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1520, 60));
+        jPanel1.add(panelRound1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1340, 60));
 
-        Barra_Lateral_Juegos.setBackground(new java.awt.Color(102, 102, 102));
-        Barra_Lateral_Juegos.setNextFocusableComponent(Barra_Lateral_Juegos);
+        jList.setBackground(new java.awt.Color(68, 68, 68));
+        jList.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(51, 51, 51), 8));
+        jList.setForeground(new java.awt.Color(255, 255, 255));
+        jList.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jList.setSelectionBackground(new java.awt.Color(153, 153, 153));
+        jScrollPane1.setViewportView(jList);
 
-        JuegoEjemplo1.setFont(new java.awt.Font("Roboto", 0, 24)); // NOI18N
-        JuegoEjemplo1.setText("Ejemplo");
-        JuegoEjemplo1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        JuegoEjemplo1.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                JuegoEjemplo1MouseClicked(evt);
-            }
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                JuegoEjemplo1MousePressed(evt);
-            }
-        });
-
-        JuegoEjemplo2.setFont(new java.awt.Font("Roboto", 0, 24)); // NOI18N
-        JuegoEjemplo2.setText("Ejemplo");
-        JuegoEjemplo2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        JuegoEjemplo2.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                JuegoEjemplo2MouseClicked(evt);
-            }
-        });
-
-        JuegoEjemplo3.setFont(new java.awt.Font("Roboto", 0, 24)); // NOI18N
-        JuegoEjemplo3.setText("Ejemplo");
-        JuegoEjemplo3.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-
-        JuegoEjemplo4.setFont(new java.awt.Font("Roboto", 0, 24)); // NOI18N
-        JuegoEjemplo4.setText("Ejemplo");
-        JuegoEjemplo4.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-
-        javax.swing.GroupLayout Barra_Lateral_JuegosLayout = new javax.swing.GroupLayout(Barra_Lateral_Juegos);
-        Barra_Lateral_Juegos.setLayout(Barra_Lateral_JuegosLayout);
-        Barra_Lateral_JuegosLayout.setHorizontalGroup(
-            Barra_Lateral_JuegosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(Barra_Lateral_JuegosLayout.createSequentialGroup()
-                .addGap(19, 19, 19)
-                .addGroup(Barra_Lateral_JuegosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(JuegoEjemplo4)
-                    .addComponent(JuegoEjemplo2)
-                    .addComponent(JuegoEjemplo1)
-                    .addComponent(JuegoEjemplo3))
-                .addContainerGap(184, Short.MAX_VALUE))
-        );
-        Barra_Lateral_JuegosLayout.setVerticalGroup(
-            Barra_Lateral_JuegosLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(Barra_Lateral_JuegosLayout.createSequentialGroup()
-                .addGap(28, 28, 28)
-                .addComponent(JuegoEjemplo1)
-                .addGap(18, 18, 18)
-                .addComponent(JuegoEjemplo2)
-                .addGap(18, 18, 18)
-                .addComponent(JuegoEjemplo3)
-                .addGap(18, 18, 18)
-                .addComponent(JuegoEjemplo4)
-                .addContainerGap(572, Short.MAX_VALUE))
-        );
-
-        bg.add(Barra_Lateral_Juegos, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 60, 290, 770));
-
-        Barra_Opciones_Juego.setBackground(new java.awt.Color(102, 102, 102));
-
-        jLabel7.setText("Página Tienda");
-        jLabel7.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-
-        jLabel8.setText("Punto de Encuentro");
-        jLabel8.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-
-        jLabel9.setText("Tienda de Puntos");
-        jLabel9.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-
-        jLabel10.setText("Discusiones");
-        jLabel10.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-
-        jLabel11.setText("Guías");
-        jLabel11.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-
-        jLabel12.setText("Workshop");
-        jLabel12.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-
-        jLabel13.setText("Soporte");
-        jLabel13.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-
-        javax.swing.GroupLayout Barra_Opciones_JuegoLayout = new javax.swing.GroupLayout(Barra_Opciones_Juego);
-        Barra_Opciones_Juego.setLayout(Barra_Opciones_JuegoLayout);
-        Barra_Opciones_JuegoLayout.setHorizontalGroup(
-            Barra_Opciones_JuegoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(Barra_Opciones_JuegoLayout.createSequentialGroup()
-                .addGap(33, 33, 33)
-                .addComponent(jLabel7)
-                .addGap(99, 99, 99)
-                .addComponent(jLabel8)
-                .addGap(107, 107, 107)
-                .addComponent(jLabel9)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 122, Short.MAX_VALUE)
-                .addComponent(jLabel10)
-                .addGap(123, 123, 123)
-                .addComponent(jLabel11)
-                .addGap(121, 121, 121)
-                .addComponent(jLabel12)
-                .addGap(105, 105, 105)
-                .addComponent(jLabel13)
-                .addGap(74, 74, 74))
-        );
-        Barra_Opciones_JuegoLayout.setVerticalGroup(
-            Barra_Opciones_JuegoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(Barra_Opciones_JuegoLayout.createSequentialGroup()
-                .addGap(14, 14, 14)
-                .addGroup(Barra_Opciones_JuegoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel7)
-                    .addComponent(jLabel8)
-                    .addComponent(jLabel9)
-                    .addComponent(jLabel10)
-                    .addComponent(jLabel11)
-                    .addComponent(jLabel12)
-                    .addComponent(jLabel13))
-                .addContainerGap(15, Short.MAX_VALUE))
-        );
-
-        bg.add(Barra_Opciones_Juego, new org.netbeans.lib.awtextra.AbsoluteConstraints(283, 342, 1240, -1));
-
-        Imagen_para_juego.setPreferredSize(new java.awt.Dimension(1230, 220));
-
-        javax.swing.GroupLayout Imagen_para_juegoLayout = new javax.swing.GroupLayout(Imagen_para_juego);
-        Imagen_para_juego.setLayout(Imagen_para_juegoLayout);
-        Imagen_para_juegoLayout.setHorizontalGroup(
-            Imagen_para_juegoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1230, Short.MAX_VALUE)
-        );
-        Imagen_para_juegoLayout.setVerticalGroup(
-            Imagen_para_juegoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 220, Short.MAX_VALUE)
-        );
-
-        bg.add(Imagen_para_juego, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 56, 1230, 220));
-
-        myButton10.setBackground(new java.awt.Color(102, 255, 102));
-        myButton10.setText("Jugar");
-        myButton10.setBorderColor(new java.awt.Color(102, 255, 102));
-        myButton10.setBorderPainted(false);
-        myButton10.setColor(new java.awt.Color(102, 255, 102));
-        myButton10.setColorClick(new java.awt.Color(0, 51, 51));
-        myButton10.setColorOver(new java.awt.Color(51, 51, 51));
-        myButton10.setFocusPainted(false);
-        myButton10.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        myButton10.setRadius(30);
-        myButton10.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                myButton10ActionPerformed(evt);
-            }
-        });
-        bg.add(myButton10, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 290, 80, 40));
-
-        Tiempo_de_Juego.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
-        Tiempo_de_Juego.setForeground(new java.awt.Color(204, 204, 204));
-        Tiempo_de_Juego.setText("Tiempo de Juego");
-        bg.add(Tiempo_de_Juego, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 290, -1, -1));
-
-        Datos_Tiempo_de_Juego.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
-        Datos_Tiempo_de_Juego.setForeground(new java.awt.Color(204, 204, 204));
-        Datos_Tiempo_de_Juego.setText("xx,x horas");
-        bg.add(Datos_Tiempo_de_Juego, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 310, -1, -1));
-
-        Última_Sesión.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
-        Última_Sesión.setForeground(new java.awt.Color(204, 204, 204));
-        Última_Sesión.setText("Última Sesión");
-        bg.add(Última_Sesión, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 290, -1, -1));
-
-        Datos_Última_Sesión.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
-        Datos_Última_Sesión.setForeground(new java.awt.Color(204, 204, 204));
-        Datos_Última_Sesión.setText("Hoy");
-        bg.add(Datos_Última_Sesión, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 310, -1, -1));
-
-        Logros.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
-        Logros.setForeground(new java.awt.Color(204, 204, 204));
-        Logros.setText("Logros");
-        bg.add(Logros, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 290, -1, -1));
-
-        Datos_Logros.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
-        Datos_Logros.setForeground(new java.awt.Color(204, 204, 204));
-        Datos_Logros.setText("31/38");
-        bg.add(Datos_Logros, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 310, -1, -1));
-
-        Actividad.setFont(new java.awt.Font("Roboto Black", 0, 18)); // NOI18N
-        Actividad.setForeground(new java.awt.Color(255, 255, 255));
-        Actividad.setText("Actividad");
-        bg.add(Actividad, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 420, -1, -1));
-
-        jTextField_Para_Actividad.setBackground(new java.awt.Color(51, 51, 51));
-        jTextField_Para_Actividad.setForeground(new java.awt.Color(255, 255, 255));
-        jTextField_Para_Actividad.setText("Diles algo sobre este juego a tus amigos...");
-        jTextField_Para_Actividad.setBorder(null);
-        bg.add(jTextField_Para_Actividad, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 460, 490, 30));
-        bg.add(Separador_Actividad, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 490, 240, 10));
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 260, Short.MAX_VALUE)
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 180, Short.MAX_VALUE)
-        );
-
-        bg.add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 570, 260, 180));
-
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 260, Short.MAX_VALUE)
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 180, Short.MAX_VALUE)
-        );
-
-        bg.add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 570, 260, 180));
-
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 260, Short.MAX_VALUE)
-        );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 180, Short.MAX_VALUE)
-        );
-
-        bg.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(1240, 570, -1, -1));
-
-        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
-        jPanel4.setLayout(jPanel4Layout);
-        jPanel4Layout.setHorizontalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 260, Short.MAX_VALUE)
-        );
-        jPanel4Layout.setVerticalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 180, Short.MAX_VALUE)
-        );
-
-        bg.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(930, 570, -1, -1));
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(-10, 60, 180, 780));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(bg, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(bg, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void myButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_myButton1ActionPerformed
+
+    private void myButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton5ActionPerformed
+        // TODO add your handling code here:
+        dispose();
+        new Biblioteca().setVisible(true);
+    }//GEN-LAST:event_myButton5ActionPerformed
+
+    private void myButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton6ActionPerformed
+        // TODO add your handling code here:
+        dispose();
+        new perfil().setVisible(true);
+    }//GEN-LAST:event_myButton6ActionPerformed
+
+    private void myButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton7ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_myButton7ActionPerformed
 
     private void myButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton8ActionPerformed
         // TODO add your handling code here:
@@ -501,44 +379,9 @@ public class Biblioteca extends javax.swing.JFrame {
         new Home().setVisible(true);
     }//GEN-LAST:event_myButton8ActionPerformed
 
-    private void myButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton7ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_myButton7ActionPerformed
-
-    private void myButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton6ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_myButton6ActionPerformed
-
-    private void myButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton5ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_myButton5ActionPerformed
-
-    private void myButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_myButton1ActionPerformed
-
-    private void myButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton9ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_myButton9ActionPerformed
-
     private void myButton10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton10ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_myButton10ActionPerformed
-
-    private void JuegoEjemplo1MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_JuegoEjemplo1MousePressed
-        // TODO add your handling code here:
-        //No prestar atención
-    }//GEN-LAST:event_JuegoEjemplo1MousePressed
-
-    private void JuegoEjemplo1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_JuegoEjemplo1MouseClicked
-        // Llama al método para cambiar la imagen del panel al hacer clic en JuegoEjemplo1
-        cambiarImagen("https://assets.nintendo.com/image/upload/c_fill,w_1200/q_auto:best/f_auto/dpr_2.0/ncom/software/switch/70010000008661/9da4158e053625c86c36e495abffe6952e6caf494e4af5c849d95d9c23dbdcb5", Imagen_para_juego);
-    }//GEN-LAST:event_JuegoEjemplo1MouseClicked
-
-    private void JuegoEjemplo2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_JuegoEjemplo2MouseClicked
-        // Llama al método para cambiar la imagen del panel al hacer clic en JuegoEjemplo2
-        cambiarImagen("https://www.gameit.es/wp-content/uploads/2024/03/helldivers-2-1.jpg", Imagen_para_juego);
-    }//GEN-LAST:event_JuegoEjemplo2MouseClicked
 
     /**
      * @param args the command line arguments
@@ -566,6 +409,7 @@ public class Biblioteca extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(Biblioteca.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
+        //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -576,42 +420,25 @@ public class Biblioteca extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel Actividad;
-    private javax.swing.JPanel Barra_Lateral_Juegos;
-    private javax.swing.JPanel Barra_Opciones_Juego;
-    private javax.swing.JLabel Datos_Logros;
-    private javax.swing.JLabel Datos_Tiempo_de_Juego;
-    private javax.swing.JLabel Datos_Última_Sesión;
-    private javax.swing.JPanel Imagen_para_juego;
-    private javax.swing.JLabel JuegoEjemplo1;
-    private javax.swing.JLabel JuegoEjemplo2;
-    private javax.swing.JLabel JuegoEjemplo3;
-    private javax.swing.JLabel JuegoEjemplo4;
-    private javax.swing.JLabel Logros;
-    private javax.swing.JSeparator Separador_Actividad;
+    private javax.swing.JLabel Logros2;
     private javax.swing.JLabel Tiempo_de_Juego;
-    private javax.swing.JPanel bg;
-    private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
+    private javax.swing.JLabel jLabelimagen;
+    private javax.swing.JLabel jLabelnFecha;
+    private javax.swing.JLabel jLabelnJuego;
+    private javax.swing.JList<String> jList;
+    private javax.swing.JLabel jNombreU;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel4;
-    private javax.swing.JTextField jTextField_Para_Actividad;
+    private javax.swing.JScrollPane jScrollPane1;
     private Vista.MyButton myButton1;
     private Vista.MyButton myButton10;
     private Vista.MyButton myButton5;
     private Vista.MyButton myButton6;
     private Vista.MyButton myButton7;
     private Vista.MyButton myButton8;
-    private Vista.MyButton myButton9;
     private Clases.PanelRound panelRound1;
-    private javax.swing.JLabel Última_Sesión;
+    private Clases.PanelRound panelRound2;
+    private Clases.PanelRound panelRound3;
+    private Clases.PanelRound panelRound4;
+    private Clases.PanelRound panelRound5;
     // End of variables declaration//GEN-END:variables
 }

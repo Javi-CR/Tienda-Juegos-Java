@@ -333,6 +333,8 @@ public class perfil extends javax.swing.JFrame {
 
     private void myButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton5ActionPerformed
         // TODO add your handling code here:
+        dispose();
+        new Biblioteca().setVisible(true);
     }//GEN-LAST:event_myButton5ActionPerformed
 
     private void myButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton6ActionPerformed

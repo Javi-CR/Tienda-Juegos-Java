@@ -5,22 +5,11 @@
 package Vista;
 
 import Conexion.Sesion;
+import Conexion.Tienda;
 import Conexion.Usuarios;
-import Conexion.conexion;
-
-import java.awt.GridLayout;
-
-import javax.swing.JLabel;
-
-import java.awt.Image;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-
-import java.io.IOException;
 import java.net.URL;
-import java.util.List;
-import java.util.Map;
-import javax.imageio.ImageIO;
+import java.awt.Image;
+import java.net.MalformedURLException;
 import javax.swing.ImageIcon;
 
 /**
@@ -29,25 +18,20 @@ import javax.swing.ImageIcon;
  */
 public class Home extends javax.swing.JFrame {
 
-    private conexion conexion;
     /**
-     * Creates new form NewJFrame
+     * Creates new form HOME1
      */
     public Home() {
         initComponents();
-        conexion = new conexion();
         setTitle("Home");
         setResizable(false);
         setLocationRelativeTo(null);
-        mostrarImagenJuego(5); // Llama al método para obtener la imagen del juego con ID 1
-        mostrarImagenesDescuento();
         
         int id = Sesion.usuarioId;
         Usuarios usuarios = new Usuarios(); // Crea una instancia de la clase Usuarios
         String nombreUsuario = usuarios.obtenerNombreUsuario(id); // Llama al método obtenerNombreUsuario(id)
         jNombreU.setText(nombreUsuario);
         
-        SinDescuento();
         
         String rutaImagen = usuarios.obtenerRutaImagen(id); // Llama al método obtenerRutaImagen(id)
         if (rutaImagen != null) {
@@ -64,163 +48,125 @@ public class Home extends javax.swing.JFrame {
             System.out.println("No hay imagen disponible");
            
         }
+        
+        Tienda tienda = new Tienda();
+        // Obtén los detalles de los juegos
+        String[] detallesJuego1 = tienda.obtenerDetallesJuego(1);
+        String[] detallesJuego2 = tienda.obtenerDetallesJuego(2);
+        String[] detallesJuego3 = tienda.obtenerDetallesJuego(3);
+        String[] detallesJuego4 = tienda.obtenerDetallesJuego(4);
+        String[] detallesJuego5 = tienda.obtenerDetallesJuego(5);
 
-    }
-
-    private void mostrarImagenJuego(int idJuego) {
-    String rutaImagen = conexion.obtenerRutaImagen(idJuego); // Obtener la ruta de la imagen para el juego con el ID especificado
-    if (rutaImagen != null) {
         try {
-            System.out.println("Ruta de la imagen: " + rutaImagen); // Mensaje de depuración
-            
-            // Descargar la imagen desde la URL
-            URL url = new URL(rutaImagen);
-            Image imagenOriginal = ImageIO.read(url);
-            
-            // Redimensionar la imagen a 40x50 manteniendo la relación de aspecto
-            Image imagenRedimensionada = imagenOriginal.getScaledInstance(900, 300, Image.SCALE_SMOOTH);
-            
-            // Crear un ImageIcon con la imagen redimensionada
-            ImageIcon icono = new ImageIcon(imagenRedimensionada);
-            
-            // Crear un JLabel con el ImageIcon y agregarlo al jPanel6
-            JLabel label = new JLabel(icono);
-            label.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    // Aquí manejas el clic en la imagen
-                    // Obtienes el idJuego asociado a esta imagen y lo utilizas para agregarlo al usuario
-                    agregarJuegoAUsuario(idJuego);
-                }
-            });
-            jPanel6.setLayout(new GridLayout(1, 1)); // Establecer layout del panel
-            jPanel6.add(label); // Agregar imagen al panel
-        } catch (IOException e) {
+            // Obtén la URL de la imagen
+            URL url = new URL(detallesJuego1[7]);
+
+            // Crea un ImageIcon con la imagen de la URL
+            ImageIcon icon = new ImageIcon(url);
+
+            // Redimensiona la imagen al tamaño del label
+            Image image = icon.getImage();
+            Image resizedImage = image.getScaledInstance(jImagen1.getWidth(), jImagen1.getHeight(), java.awt.Image.SCALE_SMOOTH);
+
+            // Crea un nuevo ImageIcon con la imagen redimensionada
+            ImageIcon resizedIcon = new ImageIcon(resizedImage);
+
+            // Configura el label con el nuevo ImageIcon
+            jImagen1.setIcon(resizedIcon);
+        } catch (MalformedURLException e) {
+            System.out.println("La URL proporcionada no es válida: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
             System.out.println("Error al cargar la imagen: " + e.getMessage());
         }
-    } else {
-        System.out.println("No se encontró la imagen para el juego con ID: " + idJuego);
-        System.out.println("Ruta imagen: " + rutaImagen);
-    }
-}
-   private void agregarJuegoAUsuario(int idJuego) {
-    // Aquí debes obtener el ID de usuario del usuario conectado.
-    int idUsuario = Sesion.usuarioId;
-    
-    // Aquí debes agregar una nueva fila a la tabla usuario_juego con el idUsuario y el idJuego.
-    conexion.agregarJuegoAUsuario(idUsuario, idJuego);
-}
-
-   
-  
-
-// Resto de la clase...
-
-private void mostrarImagenesDescuento() {
-    // Obtener las rutas de las imágenes de los juegos con descuento desde la base de datos
-    Map<String, Integer> rutasEIds = conexion.obtenerRutasEIdsImagenesConDescuento();
-    
-    // Iterar sobre cada par de ruta de imagen e ID de juego
-    for (Map.Entry<String, Integer> entry : rutasEIds.entrySet()) {
-        String rutaImagen = entry.getKey();
-        int idJuego = entry.getValue();
+        
         try {
-            // Descargar la imagen desde la URL
-            URL url = new URL(rutaImagen);
-            Image imagenOriginal = ImageIO.read(url);
-            
-            // Redimensionar la imagen a 40x50 manteniendo la relación de aspecto
-            Image imagenRedimensionada = imagenOriginal.getScaledInstance(170, 90, Image.SCALE_SMOOTH);
-            
-            // Crear un ImageIcon con la imagen redimensionada
-            ImageIcon icono = new ImageIcon(imagenRedimensionada);
-            
-            // Crear un JLabel con el ImageIcon y agregarlo al jPanel9
-            JLabel label = new JLabel(icono);
-            label.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    // Manejar el clic en la imagen, pasando el ID del juego asociado
-                    agregarJuegoAUsuario(idJuego);
-                }
-            });
-            
-            // Agregar el JLabel al jPanel9
-            jPanel9.add(label);
-        } catch (IOException e) {
-            System.out.println("Error al cargar la imagen desde la URL: " + e.getMessage());
+            URL url = new URL(detallesJuego2[7]);
+            ImageIcon icon = new ImageIcon(url);
+            Image image = icon.getImage();
+            Image resizedImage = image.getScaledInstance(jImagen2.getWidth(), jImagen2.getHeight(), java.awt.Image.SCALE_SMOOTH);
+            ImageIcon resizedIcon = new ImageIcon(resizedImage);
+            jImagen2.setIcon(resizedIcon);
+        } catch (MalformedURLException e) {
+            System.out.println("La URL proporcionada no es válida: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.out.println("Error al cargar la imagen: " + e.getMessage());
         }
-    }
-    
-    // Actualizar la disposición del panel
-    jPanel9.revalidate();
-    jPanel9.repaint();
-}
-
-
-private void SinDescuento() {
-    // Obtener las rutas de las imágenes de los juegos sin descuento desde la base de datos
-    List<String> rutasImagenes = conexion.obtenerRutasImagenesSinDescuento();
-    Map<String, Integer> rutasEIds = conexion.obtenerRutasEIdsImagenesSinDescuento();
-    
-    // Iterar sobre cada par de ruta de imagen e ID de juego
-    for (Map.Entry<String, Integer> entry : rutasEIds.entrySet()) {
-        String rutaImagen = entry.getKey();
-        int idJuego = entry.getValue();
+        
         try {
-            System.out.println("Ruta de la imagen: " + rutaImagen); // Mensaje de depuración
-            
-            // Descargar la imagen desde la URL
-            URL url = new URL(rutaImagen);
-            Image imagenOriginal = ImageIO.read(url);
-            
-            // Redimensionar la imagen a 170x90 manteniendo la relación de aspecto
-            Image imagenRedimensionada = imagenOriginal.getScaledInstance(170, 90, Image.SCALE_SMOOTH);
-            
-            // Crear un ImageIcon con la imagen redimensionada
-            ImageIcon icono = new ImageIcon(imagenRedimensionada);
-            
-            // Crear un JLabel con el ImageIcon y agregarlo al jPanel8
-            JLabel label = new JLabel(icono);
-            label.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    // Manejar el clic en la imagen, pasando el ID del juego asociado
-                    agregarJuegoAUsuario(idJuego);
-                }
-            });
-            
-            // Agregar el JLabel al jPanel8
-            jPanel8.add(label);
-        } catch (IOException e) {
-            System.out.println("Error al cargar la imagen desde la URL: " + e.getMessage());
+            URL url = new URL(detallesJuego3[7]);
+            ImageIcon icon = new ImageIcon(url);
+            Image image = icon.getImage();
+            Image resizedImage = image.getScaledInstance(jImagen3.getWidth(), jImagen3.getHeight(), java.awt.Image.SCALE_SMOOTH);
+            ImageIcon resizedIcon = new ImageIcon(resizedImage);
+            jImagen3.setIcon(resizedIcon);
+        } catch (MalformedURLException e) {
+            System.out.println("La URL proporcionada no es válida: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.out.println("Error al cargar la imagen: " + e.getMessage());
         }
+        
+        try {
+            URL url = new URL(detallesJuego4[7]);
+            ImageIcon icon = new ImageIcon(url);
+            Image image = icon.getImage();
+            Image resizedImage = image.getScaledInstance(jImagen4.getWidth(), jImagen4.getHeight(), java.awt.Image.SCALE_SMOOTH);
+            ImageIcon resizedIcon = new ImageIcon(resizedImage);
+            jImagen4.setIcon(resizedIcon);
+        } catch (MalformedURLException e) {
+            System.out.println("La URL proporcionada no es válida: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.out.println("Error al cargar la imagen: " + e.getMessage());
+        }
+
+        
+        try {
+            URL url = new URL(detallesJuego5[7]);
+            ImageIcon icon = new ImageIcon(url);
+            Image image = icon.getImage();
+            Image resizedImage = image.getScaledInstance(jImagen5.getWidth(), jImagen5.getHeight(), java.awt.Image.SCALE_SMOOTH);
+            ImageIcon resizedIcon = new ImageIcon(resizedImage);
+            jImagen5.setIcon(resizedIcon);
+        } catch (MalformedURLException e) {
+            System.out.println("La URL proporcionada no es válida: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.out.println("Error al cargar la imagen: " + e.getMessage());
+        }
+
+        jNombre1.setText(detallesJuego1[1]);
+        jEdad1.setText(detallesJuego1[4]);
+        jPrecio1.setText(detallesJuego1[3]);
+
+       
+        jNombre2.setText(detallesJuego2[1]);
+        jEdad2.setText(detallesJuego2[4]);
+        jPrecio2.setText(detallesJuego2[3]);
+        
+        jNombre3.setText(detallesJuego3[1]);
+        jEdad3.setText(detallesJuego3[4]);
+        jPrecio3.setText(detallesJuego3[3]);
+        
+        jNombre4.setText(detallesJuego4[1]);
+        jEdad4.setText(detallesJuego4[4]);
+        jPrecio4.setText(detallesJuego4[3]);
+        
+        jNombre5.setText(detallesJuego5[1]);
+        jEdad5.setText(detallesJuego5[4]);
+        jPrecio5.setText(detallesJuego5[3]);
+ 
+        System.out.println("Conectado");
     }
-    
-    // Actualizar la disposición del panel
-    jPanel8.revalidate();
-    jPanel8.repaint();
-}
 
-
-
-
-
-
-
-
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel5 = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
-        jPanel4 = new javax.swing.JPanel();
-        jPanel9 = new javax.swing.JPanel();
-        jPanel6 = new javax.swing.JPanel();
-        jPanel8 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        jSeparator1 = new javax.swing.JSeparator();
         panelRound1 = new Clases.PanelRound();
         myButton1 = new Vista.MyButton();
         jNombreU = new javax.swing.JLabel();
@@ -228,36 +174,50 @@ private void SinDescuento() {
         myButton6 = new Vista.MyButton();
         myButton7 = new Vista.MyButton();
         myButton8 = new Vista.MyButton();
+        jLabel2 = new javax.swing.JLabel();
+        panelRound2 = new Clases.PanelRound();
+        jImagen1 = new javax.swing.JLabel();
+        jPrecio1 = new javax.swing.JLabel();
+        jNombre1 = new javax.swing.JLabel();
+        jEdad1 = new javax.swing.JLabel();
+        ButtonC1 = new Vista.MyButton();
+        panelRound3 = new Clases.PanelRound();
+        jImagen2 = new javax.swing.JLabel();
+        jPrecio2 = new javax.swing.JLabel();
+        jNombre2 = new javax.swing.JLabel();
+        jEdad2 = new javax.swing.JLabel();
+        ButtonC2 = new Vista.MyButton();
+        panelRound4 = new Clases.PanelRound();
+        jImagen3 = new javax.swing.JLabel();
+        jPrecio3 = new javax.swing.JLabel();
+        jNombre3 = new javax.swing.JLabel();
+        jEdad3 = new javax.swing.JLabel();
+        ButtonC3 = new Vista.MyButton();
+        panelRound5 = new Clases.PanelRound();
+        jImagen4 = new javax.swing.JLabel();
+        jPrecio4 = new javax.swing.JLabel();
+        jNombre4 = new javax.swing.JLabel();
+        jEdad4 = new javax.swing.JLabel();
+        ButtonC4 = new Vista.MyButton();
+        panelRound6 = new Clases.PanelRound();
+        jImagen5 = new javax.swing.JLabel();
+        jPrecio5 = new javax.swing.JLabel();
+        jNombre5 = new javax.swing.JLabel();
+        jEdad5 = new javax.swing.JLabel();
+        ButtonC5 = new Vista.MyButton();
+        jLabel3 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        setBackground(new java.awt.Color(255, 255, 255));
 
-        jPanel1.setBackground(new java.awt.Color(0, 0, 0));
-        jPanel1.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 1, true));
+        jPanel1.setBackground(new java.awt.Color(51, 51, 51));
+        jPanel1.setForeground(new java.awt.Color(255, 255, 255));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-
-        jPanel4.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel4.setLayout(new java.awt.GridLayout(1, 0));
-
-        jPanel9.setBackground(new java.awt.Color(0, 0, 0));
-        jPanel9.setLayout(new java.awt.GridLayout(1, 4, 10, 0));
-        jPanel4.add(jPanel9);
-
-        jPanel1.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 370, 1280, 100));
-        jPanel4.getAccessibleContext().setAccessibleName("");
-
-        jPanel1.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 90, 1280, 240));
-
-        jPanel8.setBackground(new java.awt.Color(0, 0, 0));
-        jPanel8.setForeground(new java.awt.Color(0, 0, 0));
-        jPanel1.add(jPanel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 500, 1310, 280));
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel1.setText("OFERTAS ESPECIALES");
-        jLabel1.setBorder(new javax.swing.border.MatteBorder(null));
-        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 340, 210, -1));
-        jPanel1.add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 490, 1320, 20));
+        jLabel1.setText("          Juegos Destacados");
+        jPanel1.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 300, 1340, 60));
 
         panelRound1.setBackground(new java.awt.Color(0, 102, 102));
         panelRound1.setRoundBottomLeft(20);
@@ -268,7 +228,13 @@ private void SinDescuento() {
         myButton1.setBorderPainted(false);
         myButton1.setColorClick(new java.awt.Color(255, 255, 255));
         myButton1.setColorOver(new java.awt.Color(255, 255, 255));
+        myButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         myButton1.setRadius(40);
+        myButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                myButton1ActionPerformed(evt);
+            }
+        });
         panelRound1.add(myButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1160, 10, 40, 40));
 
         jNombreU.setForeground(new java.awt.Color(255, 255, 255));
@@ -343,15 +309,169 @@ private void SinDescuento() {
         });
         panelRound1.add(myButton8, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 80, 40));
 
-        jPanel1.add(panelRound1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1350, 60));
+        jPanel1.add(panelRound1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1340, 60));
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 1350, 800));
+        jLabel2.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel2.setText("          Ofertas Especiales");
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 60, 1340, 70));
+
+        panelRound2.setBackground(new java.awt.Color(102, 102, 102));
+        panelRound2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        panelRound2.add(jImagen1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 370, 170));
+
+        jPrecio1.setForeground(new java.awt.Color(255, 255, 255));
+        jPrecio1.setText("Precio");
+        panelRound2.add(jPrecio1, new org.netbeans.lib.awtextra.AbsoluteConstraints(870, 0, 160, 170));
+
+        jNombre1.setForeground(new java.awt.Color(255, 255, 255));
+        jNombre1.setText("Nombre");
+        panelRound2.add(jNombre1, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 0, 160, 170));
+
+        jEdad1.setForeground(new java.awt.Color(255, 255, 255));
+        jEdad1.setText("Edad");
+        panelRound2.add(jEdad1, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 0, 160, 170));
+
+        ButtonC1.setText("Comprar");
+        ButtonC1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ButtonC1ActionPerformed(evt);
+            }
+        });
+        panelRound2.add(ButtonC1, new org.netbeans.lib.awtextra.AbsoluteConstraints(1130, 60, 159, 42));
+
+        jPanel1.add(panelRound2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 130, 1320, 170));
+
+        panelRound3.setBackground(new java.awt.Color(102, 102, 102));
+        panelRound3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        panelRound3.add(jImagen2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -2, 200, 100));
+
+        jPrecio2.setForeground(new java.awt.Color(255, 255, 255));
+        jPrecio2.setText("Precio");
+        panelRound3.add(jPrecio2, new org.netbeans.lib.awtextra.AbsoluteConstraints(804, 0, 250, 100));
+
+        jNombre2.setForeground(new java.awt.Color(255, 255, 255));
+        jNombre2.setText("Nombre");
+        panelRound3.add(jNombre2, new org.netbeans.lib.awtextra.AbsoluteConstraints(268, 0, 250, 100));
+
+        jEdad2.setForeground(new java.awt.Color(255, 255, 255));
+        jEdad2.setText("Edad");
+        panelRound3.add(jEdad2, new org.netbeans.lib.awtextra.AbsoluteConstraints(536, 0, 250, 100));
+
+        ButtonC2.setText("Comprar");
+        ButtonC2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ButtonC2ActionPerformed(evt);
+            }
+        });
+        panelRound3.add(ButtonC2, new org.netbeans.lib.awtextra.AbsoluteConstraints(1131, 30, 159, 42));
+
+        jPanel1.add(panelRound3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 360, 1320, -1));
+
+        panelRound4.setBackground(new java.awt.Color(102, 102, 102));
+        panelRound4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        panelRound4.add(jImagen3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -2, 200, 100));
+
+        jPrecio3.setForeground(new java.awt.Color(255, 255, 255));
+        jPrecio3.setText("Precio");
+        panelRound4.add(jPrecio3, new org.netbeans.lib.awtextra.AbsoluteConstraints(804, 0, 250, 100));
+
+        jNombre3.setForeground(new java.awt.Color(255, 255, 255));
+        jNombre3.setText("Nombre");
+        panelRound4.add(jNombre3, new org.netbeans.lib.awtextra.AbsoluteConstraints(268, -2, 250, 100));
+
+        jEdad3.setForeground(new java.awt.Color(255, 255, 255));
+        jEdad3.setText("Edad");
+        panelRound4.add(jEdad3, new org.netbeans.lib.awtextra.AbsoluteConstraints(536, -2, 250, 100));
+
+        ButtonC3.setText("Comprar");
+        ButtonC3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ButtonC3ActionPerformed(evt);
+            }
+        });
+        panelRound4.add(ButtonC3, new org.netbeans.lib.awtextra.AbsoluteConstraints(1131, 30, 159, 42));
+
+        jPanel1.add(panelRound4, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 470, 1320, -1));
+
+        panelRound5.setBackground(new java.awt.Color(102, 102, 102));
+        panelRound5.setForeground(new java.awt.Color(255, 255, 255));
+        panelRound5.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jImagen4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        panelRound5.add(jImagen4, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -2, 200, 100));
+
+        jPrecio4.setForeground(new java.awt.Color(255, 255, 255));
+        jPrecio4.setText("Precio");
+        panelRound5.add(jPrecio4, new org.netbeans.lib.awtextra.AbsoluteConstraints(804, 0, 250, 100));
+
+        jNombre4.setForeground(new java.awt.Color(255, 255, 255));
+        jNombre4.setText("Nombre");
+        panelRound5.add(jNombre4, new org.netbeans.lib.awtextra.AbsoluteConstraints(268, -2, 250, 100));
+
+        jEdad4.setForeground(new java.awt.Color(255, 255, 255));
+        jEdad4.setText("Edad");
+        panelRound5.add(jEdad4, new org.netbeans.lib.awtextra.AbsoluteConstraints(536, -2, 250, 100));
+
+        ButtonC4.setText("Comprar");
+        ButtonC4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ButtonC4ActionPerformed(evt);
+            }
+        });
+        panelRound5.add(ButtonC4, new org.netbeans.lib.awtextra.AbsoluteConstraints(1131, 30, 159, 42));
+
+        jPanel1.add(panelRound5, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 580, 1320, -1));
+
+        panelRound6.setBackground(new java.awt.Color(102, 102, 102));
+        panelRound6.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        panelRound6.add(jImagen5, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -2, 200, 100));
+
+        jPrecio5.setForeground(new java.awt.Color(255, 255, 255));
+        jPrecio5.setText("Precio");
+        panelRound6.add(jPrecio5, new org.netbeans.lib.awtextra.AbsoluteConstraints(804, 0, 250, 100));
+
+        jNombre5.setForeground(new java.awt.Color(255, 255, 255));
+        jNombre5.setText("Nombre");
+        panelRound6.add(jNombre5, new org.netbeans.lib.awtextra.AbsoluteConstraints(268, -2, 250, 100));
+
+        jEdad5.setForeground(new java.awt.Color(255, 255, 255));
+        jEdad5.setText("Edad");
+        panelRound6.add(jEdad5, new org.netbeans.lib.awtextra.AbsoluteConstraints(536, -2, 250, 100));
+
+        ButtonC5.setText("Comprar");
+        ButtonC5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ButtonC5ActionPerformed(evt);
+            }
+        });
+        panelRound6.add(ButtonC5, new org.netbeans.lib.awtextra.AbsoluteConstraints(1131, 30, 159, 42));
+
+        jPanel1.add(panelRound6, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 690, 1320, -1));
+        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(1280, 790, 60, 10));
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void myButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_myButton1ActionPerformed
+
     private void myButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton5ActionPerformed
         // TODO add your handling code here:
+        dispose();
+        new Biblioteca().setVisible(true);
     }//GEN-LAST:event_myButton5ActionPerformed
 
     private void myButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton6ActionPerformed
@@ -366,7 +486,50 @@ private void SinDescuento() {
 
     private void myButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myButton8ActionPerformed
         // TODO add your handling code here:
+        dispose();
+        new Home().setVisible(true);
     }//GEN-LAST:event_myButton8ActionPerformed
+
+    private void ButtonC1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonC1ActionPerformed
+        // TODO add your handling code here:
+        Tienda tienda = new Tienda();
+        int id = Sesion.usuarioId;
+        int IDJuego = 1;
+        tienda.comprarJuego(id, IDJuego);
+    }//GEN-LAST:event_ButtonC1ActionPerformed
+
+    private void ButtonC2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonC2ActionPerformed
+        // TODO add your handling code here:
+        Tienda tienda = new Tienda();
+        int id = Sesion.usuarioId;
+        int IDJuego = 2;
+        tienda.comprarJuego(id, IDJuego);
+    }//GEN-LAST:event_ButtonC2ActionPerformed
+
+    private void ButtonC3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonC3ActionPerformed
+        // TODO add your handling code here:
+        Tienda tienda = new Tienda();
+        int id = Sesion.usuarioId;
+        int IDJuego = 3;
+        tienda.comprarJuego(id, IDJuego);
+    }//GEN-LAST:event_ButtonC3ActionPerformed
+
+    private void ButtonC4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonC4ActionPerformed
+        // TODO add your handling code here:
+          Tienda tienda = new Tienda();
+        int id = Sesion.usuarioId;
+        int IDJuego = 4;
+        tienda.comprarJuego(id, IDJuego);
+    }//GEN-LAST:event_ButtonC4ActionPerformed
+
+    private void ButtonC5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ButtonC5ActionPerformed
+        // TODO add your handling code here:
+        Tienda tienda = new Tienda();
+        int id = Sesion.usuarioId;
+        int IDJuego = 5;
+        tienda.comprarJuego(id, IDJuego);
+
+    }//GEN-LAST:event_ButtonC5ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -397,34 +560,6 @@ private void SinDescuento() {
         //</editor-fold>
         //</editor-fold>
         //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -435,20 +570,46 @@ private void SinDescuento() {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private Vista.MyButton ButtonC1;
+    private Vista.MyButton ButtonC2;
+    private Vista.MyButton ButtonC3;
+    private Vista.MyButton ButtonC4;
+    private Vista.MyButton ButtonC5;
+    private javax.swing.JLabel jEdad1;
+    private javax.swing.JLabel jEdad2;
+    private javax.swing.JLabel jEdad3;
+    private javax.swing.JLabel jEdad4;
+    private javax.swing.JLabel jEdad5;
+    private javax.swing.JLabel jImagen1;
+    private javax.swing.JLabel jImagen2;
+    private javax.swing.JLabel jImagen3;
+    private javax.swing.JLabel jImagen4;
+    private javax.swing.JLabel jImagen5;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jNombre1;
+    private javax.swing.JLabel jNombre2;
+    private javax.swing.JLabel jNombre3;
+    private javax.swing.JLabel jNombre4;
+    private javax.swing.JLabel jNombre5;
     private javax.swing.JLabel jNombreU;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel4;
-    private javax.swing.JPanel jPanel5;
-    private javax.swing.JPanel jPanel6;
-    private javax.swing.JPanel jPanel8;
-    private javax.swing.JPanel jPanel9;
-    private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JLabel jPrecio1;
+    private javax.swing.JLabel jPrecio2;
+    private javax.swing.JLabel jPrecio3;
+    private javax.swing.JLabel jPrecio4;
+    private javax.swing.JLabel jPrecio5;
     private Vista.MyButton myButton1;
     private Vista.MyButton myButton5;
     private Vista.MyButton myButton6;
     private Vista.MyButton myButton7;
     private Vista.MyButton myButton8;
     private Clases.PanelRound panelRound1;
+    private Clases.PanelRound panelRound2;
+    private Clases.PanelRound panelRound3;
+    private Clases.PanelRound panelRound4;
+    private Clases.PanelRound panelRound5;
+    private Clases.PanelRound panelRound6;
     // End of variables declaration//GEN-END:variables
 }
